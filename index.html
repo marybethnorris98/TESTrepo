@@ -4,25 +4,49 @@
   <title>Firestore Test</title>
 </head>
 <body>
-  <h1>Firestore Test Page</h1>
-  
-  <form id="recipeForm">
-    <input type="text" id="title" placeholder="Title" required /><br>
-    <input type="text" id="category" placeholder="Category" /><br>
-    <input type="text" id="image" placeholder="Image URL" /><br>
-    <textarea id="description" placeholder="Description"></textarea><br>
-    <textarea id="ingredients" placeholder="Ingredients (comma separated)"></textarea><br>
-    <textarea id="instructions" placeholder="Instructions (comma separated)"></textarea><br>
-    <input type="text" id="credits" placeholder="Credits" /><br>
-    <input type="text" id="tags" placeholder="Tags (comma separated)" /><br>
-    <label>Hidden: <input type="checkbox" id="hidden"></label><br>
-    <label>Draft: <input type="checkbox" id="draft"></label><br>
-    <button type="submit">Add Recipe</button>
-  </form>
-<button id="readRecipesBtn">Read Recipes</button>
-  <pre id="output"></pre>
+  <!-- BARBIE HEADER -->
+  <div class="barbie-header">
+    <h1 class="barbie-text">Recipe Magic</h1>
+    <div class="sparkles">
+      <span class="star star-1">★</span>
+      <span class="star star-2">★</span>
+      <span class="star star-3">★</span>
+      <span class="star star-4">★</span>
+      <span class="dot dot-1">•</span>
+      <span class="dot dot-2">•</span>
+      <span class="dot dot-3">•</span>
+      <span class="dot dot-4">•</span>
+    </div>
+  </div>
 
-  <!-- Firebase SDKs -->
+  <!-- CONTROLS / ADD RECIPE FORM -->
+  <div class="controls">
+    <button id="openAddRecipeModal" class="small-add-btn">Add Recipe</button>
+  </div>
+
+  <!-- MODAL FOR ADDING RECIPE -->
+  <div id="addRecipeModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn" id="closeAddModal">✖</button>
+      <form id="recipeForm">
+        <input type="text" id="title" placeholder="Title" class="admin-input" required />
+        <input type="text" id="category" placeholder="Category" class="admin-input"/>
+        <input type="text" id="image" placeholder="Image URL" class="admin-input"/>
+        <textarea id="description" placeholder="Description" class="admin-input"></textarea>
+        <textarea id="ingredients" placeholder="Ingredients (comma separated)" class="admin-input"></textarea>
+        <textarea id="instructions" placeholder="Instructions (comma separated)" class="admin-input"></textarea>
+        <input type="text" id="credits" placeholder="Credits" class="admin-input"/>
+        <input type="text" id="tags" placeholder="Tags (comma separated)" class="admin-input"/>
+        <label>Hidden: <input type="checkbox" id="hidden"></label><br>
+        <label>Draft: <input type="checkbox" id="draft"></label><br>
+        <button type="submit" class="save-btn">Save Recipe</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RECIPE GRID -->
+  <div class="grid" id="recipeGrid"></div>
+
   <script type="module" src="script.js"></script>
 </body>
 </html>
