@@ -5,9 +5,20 @@
 </head>
 <body>
   <h1>Firestore Test Page</h1>
-
-  <button id="saveBtn">Save Test Document</button>
-  <button id="readBtn">Read Documents</button>
+  
+  <form id="recipeForm">
+    <input type="text" id="title" placeholder="Title" required /><br>
+    <input type="text" id="category" placeholder="Category" /><br>
+    <input type="text" id="image" placeholder="Image URL" /><br>
+    <textarea id="description" placeholder="Description"></textarea><br>
+    <textarea id="ingredients" placeholder="Ingredients (comma separated)"></textarea><br>
+    <textarea id="instructions" placeholder="Instructions (comma separated)"></textarea><br>
+    <input type="text" id="credits" placeholder="Credits" /><br>
+    <input type="text" id="tags" placeholder="Tags (comma separated)" /><br>
+    <label>Hidden: <input type="checkbox" id="hidden"></label><br>
+    <label>Draft: <input type="checkbox" id="draft"></label><br>
+    <button type="submit">Add Recipe</button>
+  </form>
 
   <pre id="output"></pre>
 
