@@ -432,6 +432,11 @@ function injectAdminUI() {
     location.reload();
   });
 
+const container = document.createElement("div");
+container.style.display = "flex";
+container.style.gap = "10px";
+container.style.margin = "20px 0";
+
   container.append(addBtn, draftsBtn, logoutBtn);
   document.body.appendChild(container);
 
