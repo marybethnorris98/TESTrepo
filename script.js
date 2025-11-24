@@ -389,10 +389,25 @@ document.addEventListener("keydown", e => {
 // ADMIN UI
 // -----------------------------
 function injectAdminUI() {
-  if (document.getElementById("adminControlsContainer")) return;
-  const container = document.createElement("div");
-  container.id = "adminControlsContainer";
-  container.style = "position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:1200;";
+  const adminHeader = document.getElementById("adminHeader");
+  if (!adminHeader) return;
+
+  adminHeader.innerHTML = `
+    <button id="logoutAdminBtn" class="admin-btn">Logout</button>
+    <button id="showDraftsBtn" class="admin-btn">Drafts</button>
+    <button id="addRecipeBtn" class="admin-btn">Add Recipe</button>
+  `;
+
+  document.getElementById("logoutAdminBtn").addEventListener("click", () => {
+    localStorage.removeItem("admin");
+    isAdmin = false;
+    location.reload();
+  });
+
+  document.getElementById("addRecipeBtn").addEventListener("click", () => {
+    addRecipeModal.classList.remove("hidden");
+  });
+}
 
   const addBtn = document.createElement("button");
   addBtn.textContent = "+ Add Recipe";
