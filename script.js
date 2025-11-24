@@ -62,4 +62,33 @@ recipeForm.addEventListener("submit", async (e) => {
   } catch (error) {
     output.textContent = `Error saving recipe: ${error}`;
   }
+  const readRecipesBtn = document.getElementById("readRecipesBtn");
+
+readRecipesBtn.addEventListener("click", async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "recipes"));
+    let recipes = [];
+
+    querySnapshot.forEach((doc) => {
+      recipes.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Optional: filter out hidden/draft recipes
+    const visibleRecipes = recipes.filter(r => !r.hidden && !r.draft);
+
+    // Display recipes nicely
+    if (visibleRecipes.length === 0) {
+      output.textContent = "No visible recipes found.";
+      return;
+    }
+
+    output.textContent = visibleRecipes.map(r => 
+      `Title: ${r.title}\nCategory: ${r.category}\nIngredients: ${r.ingredients.join(", ")}\nInstructions: ${r.instructions.join(", ")}\nCredits: ${r.credits}\nTags: ${r.tags.join(", ")}\n---`
+    ).join("\n\n");
+
+  } catch (error) {
+    output.textContent = `Error reading recipes: ${error}`;
+  }
+});
+
 });
