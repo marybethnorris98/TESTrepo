@@ -35,6 +35,18 @@ console.log("FULL admin + viewer Firebase script loaded");
 // ADMIN STATE
 // -----------------------------
 let isAdmin = localStorage.getItem("admin") === "true";
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  if (key === "m" && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+    const pwd = prompt("Enter admin password:");
+    if (pwd === "yourAdminPasswordHere") {
+      localStorage.setItem("admin", "true");
+      isAdmin = true;
+      alert("Admin mode activated.");
+      location.reload();
+    }
+  }
+});
 
 // -----------------------------
 // CATEGORIES
