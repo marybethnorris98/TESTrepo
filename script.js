@@ -30,34 +30,36 @@ const db = getFirestore(app);
 // --------------------------------------------------
 // BUTTON HANDLERS
 // --------------------------------------------------
-document.getElementById("saveBtn").addEventListener("click", async () => {
+const recipeForm = document.getElementById("recipeForm");
+const output = document.getElementById("output");
+
+recipeForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
   try {
-    const docRef = await addDoc(collection(db, "testCollection"), {
-      message: "Hello Firestore!",
-      timestamp: new Date()
-    });
+    const newRecipe = {
+      title: document.getElementById("title").value.trim(),
+      category: document.getElementById("category").value.trim() || "Uncategorized",
+      image: document.getElementById("image").value.trim(),
+      description: document.getElementById("description").value.trim(),
+      ingredients: document.getElementById("ingredients").value
+                     .split(",").map(s => s.trim()).filter(s => s),
+      instructions: document.getElementById("instructions").value
+                     .split(",").map(s => s.trim()).filter(s => s),
+      credits: document.getElementById("credits").value.trim(),
+      tags: document.getElementById("tags").value
+             .split(",").map(s => s.trim()).filter(s => s),
+      hidden: document.getElementById("hidden").checked,
+      draft: document.getElementById("draft").checked,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
 
-    document.getElementById("output").textContent = 
-      "Saved! Doc ID: " + docRef.id;
+    const docRef = await addDoc(collection(db, "recipes"), newRecipe);
+    output.textContent = `Recipe saved! ID: ${docRef.id}`;
+
+    recipeForm.reset();
   } catch (error) {
-    document.getElementById("output").textContent = 
-      "Error saving: " + error;
-  }
-});
-
-document.getElementById("readBtn").addEventListener("click", async () => {
-  try {
-    const querySnapshot = await getDocs(collection(db, "testCollection"));
-    let results = [];
-
-    querySnapshot.forEach((doc) => {
-      results.push(doc.data());
-    });
-
-    document.getElementById("output").textContent = 
-      JSON.stringify(results, null, 2);
-  } catch (error) {
-    document.getElementById("output").textContent = 
-      "Error reading: " + error;
+    output.textContent = `Error saving recipe: ${error}`;
   }
 });
