@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Marybeth’s Recipe Book</title>
+  <title>Recipe Book</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Parisienne&family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -15,11 +15,13 @@
   <!-- HEADER -->
   <header class="barbie-header">
     <h1 class="barbie-text">Marybeth’s<br>Recipe Book</h1>
+
     <div class="sparkles" aria-hidden="true">
       <span class="star star-1">✦</span>
       <span class="star star-2">✦</span>
       <span class="star star-3">✦</span>
       <span class="star star-4">✦</span>
+
       <span class="dot dot-1">•</span>
       <span class="dot dot-2">•</span>
       <span class="dot dot-3">•</span>
@@ -33,74 +35,72 @@
     <select id="categoryFilter"></select>
   </section>
 
-  <!-- Recipe Grid -->
+  <!-- Grid -->
   <section id="recipeGrid" class="grid"></section>
 
-  <!-- Recipe Viewer Modal -->
-  <div id="recipeModal" class="modal-overlay" style="display:none" aria-hidden="true">
-    <div class="modal-content">
-      <button class="close-btn" id="closeViewerBtn">✖</button>
-      <img id="modalImage" class="modal-image" src="" alt="">
-      <h1 id="modalTitle"></h1>
-      <div id="modalCategory"></div>
-      <div id="modalDescription"></div>
+  <!-- RECIPE VIEWER MODAL -->
+<div id="recipeModal" class="modal-overlay" style="display:none" aria-hidden="true">
+  <div class="modal-content" style="position: relative; max-height: 80vh; overflow-y: auto; padding: 20px;">
+    <button class="close-btn" id="closeViewerBtn">✖</button>
 
-      <h2>Ingredients</h2>
-      <div class="scrollable-list">
-        <ul id="modalIngredients"></ul>
-      </div>
+    <img id="modalImage" class="modal-image" src="" alt="">
+    <h1 id="modalTitle" class="modal-title"></h1>
+    <div id="modalCategory" class="modal-category"></div>
+    <div id="modalDescription" class="modal-desc"></div>
 
-      <h2>Instructions</h2>
-      <div class="scrollable-list">
-        <ol id="modalInstructions"></ol>
-      </div>
+    <h2>Ingredients</h2>
+    <div class="scrollable-list" style="max-height:200px; overflow-y:auto; margin-bottom:24px;">
+      <ul id="modalIngredients" class="modal-ingredients"></ul>
+    </div>
 
-      <div id="modalButtons">
-        <button id="modalEditBtn">Edit</button>
-        <button id="modalHideBtn">Hide</button>
-        <button id="modalDeleteBtn">Delete</button>
-      </div>
+    <h2>Instructions</h2>
+    <div class="scrollable-list" style="max-height:200px; overflow-y:auto; margin-bottom:24px;">
+      <ol id="modalInstructions" class="modal-instructions"></ol>
+    </div>
+
+    <div id="modalButtons" style="display:flex;gap:10px;margin-top:20px;position:static;">
+      <button id="modalEditBtn" class="modal-btn">Edit</button>
+      <button id="modalHideBtn" class="modal-btn">Hide</button>
+      <button id="modalDeleteBtn" class="modal-btn">Delete</button>
     </div>
   </div>
+</div>
 
-  <!-- Admin Login Modal -->
+  <!-- 🔐 LOGIN MODAL (HIDDEN) -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
-      <h2>Admin Login</h2>
-      <input id="adminPassword" type="password" placeholder="Enter password">
-      <button id="loginBtn">Unlock</button>
-      <p id="loginError">Incorrect password.</p>
+      <h2 style="margin-top:0;">Admin Login</h2>
+      <input id="adminPassword" type="password" placeholder="Enter password" style="width:100%;padding:12px;margin:12px 0;">
+      <button id="loginBtn" style="padding:12px 18px;border:none;background:#ff3ebf;color:white;border-radius:12px;font-size:16px;width:100%;">Unlock</button>
+      <p id="loginError" style="color:red;display:none;margin-top:10px;">Incorrect password.</p>
     </div>
   </div>
 
-  <!-- Add Recipe Modal -->
+  <!-- 🔐 ADD RECIPE MODAL (HIDDEN UNTIL AUTH) -->
   <div id="addRecipeModal" class="modal hidden">
     <div class="modal-content">
       <h2>Add Recipe</h2>
-      <input type="hidden" id="editingIndex">
+      <input type="hidden" id="editingIndex" value="">
 
-      <input id="newTitle" placeholder="Title">
-      <select id="newCategory"></select>
-      <input id="newImage" placeholder="Image URL">
-      <textarea id="newDesc" placeholder="Short description"></textarea>
-      <input id="credits" placeholder="Credits (optional)">
-      <input id="tags" placeholder="Tags (comma-separated)">
-      <label><input type="checkbox" id="hidden"> Hidden</label>
-      <label><input type="checkbox" id="draft"> Save as Draft</label>
+      <input id="newTitle" placeholder="Title" style="width:100%;padding:10px;margin:8px 0;">
+      <select id="newCategory" style="width:100%;padding:10px;margin:8px 0;"></select>
+      <input id="newImage" placeholder="Image URL" style="width:100%;padding:10px;margin:8px 0;">
+      <textarea id="newDesc" placeholder="Short description" style="width:100%;padding:10px;margin:8px 0;"></textarea>
 
       <h3>Ingredients</h3>
       <div id="ingredientsList"></div>
-      <button id="addIngredientBtn">+ Add Ingredient</button>
+      <button id="addIngredientBtn" class="small-add-btn">+ Add Ingredient</button>
 
       <h3>Instructions</h3>
       <div id="instructionsList"></div>
-      <button id="addInstructionBtn">+ Add Step</button>
+      <button id="addInstructionBtn" class="small-add-btn">+ Add Step</button>
 
-      <button id="saveRecipeBtn">Save Recipe</button>
-      <button id="saveDraftBtn">Save Draft</button>
+      <button id="saveRecipeBtn" class="save-btn">Save Recipe</button>
     </div>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- YOUR SCRIPT -->
+  <script src="script.js"></script>
+
 </body>
 </html>
