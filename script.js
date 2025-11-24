@@ -434,7 +434,6 @@ function injectAdminUI() {
 
   container.append(addBtn, draftsBtn, logoutBtn);
   document.body.appendChild(container);
-}
 
 // -----------------------------
 // DRAFTS MODAL
