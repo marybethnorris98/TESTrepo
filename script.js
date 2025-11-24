@@ -35,18 +35,14 @@ console.log("FULL admin + viewer Firebase script loaded");
 // ADMIN STATE
 // -----------------------------
 let isAdmin = localStorage.getItem("admin") === "true";
-document.addEventListener("keydown", (e) => {
-  const key = e.key.toLowerCase();
-  if (key === "m" && e.shiftKey && (e.ctrlKey || e.metaKey)) {
-    const pwd = prompt("Enter admin password:");
-    if (pwd === "yourAdminPasswordHere") {
-      localStorage.setItem("admin", "true");
-      isAdmin = true;
-      alert("Admin mode activated.");
-      location.reload();
-    }
+document.addEventListener("keydown", e => {
+  const key = e.key?.toLowerCase();
+  const mac = navigator.userAgent.includes("Mac");
+  if ((mac && e.metaKey && e.shiftKey && key === "m") || (!mac && e.ctrlKey && e.shiftKey && key === "m")) {
+    openLoginModal();
   }
 });
+
 
 // -----------------------------
 // CATEGORIES
@@ -388,30 +384,24 @@ document.addEventListener("keydown", e => {
 // -----------------------------
 // ADMIN UI
 // -----------------------------
+// -----------------------------
+// ADMIN UI
+// -----------------------------
 function injectAdminUI() {
-  const adminHeader = document.getElementById("adminHeader");
-  if (!adminHeader) return;
+  // Remove old container if exists
+  const oldContainer = document.getElementById("adminContainer");
+  if (oldContainer) oldContainer.remove();
 
-  adminHeader.innerHTML = `
-    <button id="logoutAdminBtn" class="admin-btn">Logout</button>
-    <button id="showDraftsBtn" class="admin-btn">Drafts</button>
-    <button id="addRecipeBtn" class="admin-btn">Add Recipe</button>
-  `;
+  const container = document.createElement("div");
+  container.id = "adminContainer";
+  container.style.display = "flex";
+  container.style.gap = "10px";
+  container.style.margin = "20px 0";
 
-  document.getElementById("logoutAdminBtn").addEventListener("click", () => {
-    localStorage.removeItem("admin");
-    isAdmin = false;
-    location.reload();
-  });
-
-  document.getElementById("addRecipeBtn").addEventListener("click", () => {
-    addRecipeModal.classList.remove("hidden");
-  });
-}
-
+  // Add buttons
   const addBtn = document.createElement("button");
   addBtn.textContent = "+ Add Recipe";
-  addBtn.style = "background:#ff3ebf;color:white;padding:12px 16px;border-radius:14px;border:none;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.15)";
+  addBtn.style.cssText = "background:#ff3ebf;color:white;padding:12px 16px;border-radius:14px;border:none;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.15)";
   addBtn.addEventListener("click", () => {
     editingDraftId = null;
     clearAddModal();
@@ -420,25 +410,22 @@ function injectAdminUI() {
 
   const draftsBtn = document.createElement("button");
   draftsBtn.textContent = "Drafts";
-  draftsBtn.style = addBtn.style.cssText;
+  draftsBtn.style.cssText = addBtn.style.cssText;
   draftsBtn.addEventListener("click", openDraftsModal);
 
   const logoutBtn = document.createElement("button");
   logoutBtn.textContent = "Logout";
-  logoutBtn.style = addBtn.style.cssText;
+  logoutBtn.style.cssText = addBtn.style.cssText;
   logoutBtn.addEventListener("click", () => {
     isAdmin = false;
     localStorage.removeItem("admin");
-    location.reload();
+    document.getElementById("adminContainer")?.remove();
+    renderRecipes();
   });
 
-const container = document.createElement("div");
-container.style.display = "flex";
-container.style.gap = "10px";
-container.style.margin = "20px 0";
-
   container.append(addBtn, draftsBtn, logoutBtn);
-  document.body.appendChild(container);
+  document.body.prepend(container);
+}
 
 // -----------------------------
 // DRAFTS MODAL
