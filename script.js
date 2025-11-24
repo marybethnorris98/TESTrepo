@@ -10,7 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // --------------------------------------------------
-// YOUR FIREBASE CONFIG (replace with your own)
+// FIREBASE CONFIG
 // --------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyC95ggTgS2Ew1MavuzEZrIvq6itTyxVdhA",
@@ -28,11 +28,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // --------------------------------------------------
-// BUTTON HANDLERS
+// MODAL HANDLERS
+// --------------------------------------------------
+const addRecipeModal = document.getElementById("addRecipeModal");
+document.getElementById("openAddRecipeModal").addEventListener("click", () => {
+  addRecipeModal.classList.remove("hidden");
+});
+document.getElementById("closeAddModal").addEventListener("click", () => {
+  addRecipeModal.classList.add("hidden");
+});
+
+// --------------------------------------------------
+// FORM HANDLER
 // --------------------------------------------------
 const recipeForm = document.getElementById("recipeForm");
-const output = document.getElementById("output");
-
 recipeForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -55,40 +64,63 @@ recipeForm.addEventListener("submit", async (e) => {
       updatedAt: new Date()
     };
 
-    const docRef = await addDoc(collection(db, "recipes"), newRecipe);
-    output.textContent = `Recipe saved! ID: ${docRef.id}`;
+    await addDoc(collection(db, "recipes"), newRecipe);
 
     recipeForm.reset();
-  } catch (error) {
-    output.textContent = `Error saving recipe: ${error}`;
-  }
-  const readRecipesBtn = document.getElementById("readRecipesBtn");
+    addRecipeModal.classList.add("hidden");
+    renderRecipes();
 
-readRecipesBtn.addEventListener("click", async () => {
+  } catch (error) {
+    console.error("Error saving recipe:", error);
+    alert("Error saving recipe: " + error);
+  }
+});
+
+// --------------------------------------------------
+// RENDER RECIPES
+// --------------------------------------------------
+const recipeGrid = document.getElementById("recipeGrid");
+
+async function renderRecipes() {
   try {
     const querySnapshot = await getDocs(collection(db, "recipes"));
     let recipes = [];
+    querySnapshot.forEach(doc => recipes.push({ id: doc.id, ...doc.data() }));
 
-    querySnapshot.forEach((doc) => {
-      recipes.push({ id: doc.id, ...doc.data() });
+    recipeGrid.innerHTML = ""; // clear existing cards
+
+    recipes.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "card";
+      if (r.hidden) card.classList.add("hidden-recipe");
+
+      card.innerHTML = `
+        <img src="${r.image || 'https://via.placeholder.com/300x180'}" alt="${r.title}" />
+        <div class="card-title">${r.title}</div>
+        <div class="card-category">${r.category}</div>
+        <div class="card-desc">${r.description}</div>
+        <div class="card-info-icon">i</div>
+        <div class="card-info-tooltip">
+          <strong>Ingredients:</strong> ${r.ingredients.join(", ")}<br>
+          <strong>Instructions:</strong> ${r.instructions.join(", ")}<br>
+          <strong>Credits:</strong> ${r.credits || "N/A"}<br>
+          <strong>Tags:</strong> ${r.tags.join(", ")}
+        </div>
+      `;
+
+      // Tooltip hover
+      const infoIcon = card.querySelector(".card-info-icon");
+      const tooltip = card.querySelector(".card-info-tooltip");
+      infoIcon.addEventListener("mouseenter", () => tooltip.classList.add("visible"));
+      infoIcon.addEventListener("mouseleave", () => tooltip.classList.remove("visible"));
+
+      recipeGrid.appendChild(card);
     });
 
-    // Optional: filter out hidden/draft recipes
-    const visibleRecipes = recipes.filter(r => !r.hidden && !r.draft);
-
-    // Display recipes nicely
-    if (visibleRecipes.length === 0) {
-      output.textContent = "No visible recipes found.";
-      return;
-    }
-
-    output.textContent = visibleRecipes.map(r => 
-      `Title: ${r.title}\nCategory: ${r.category}\nIngredients: ${r.ingredients.join(", ")}\nInstructions: ${r.instructions.join(", ")}\nCredits: ${r.credits}\nTags: ${r.tags.join(", ")}\n---`
-    ).join("\n\n");
-
   } catch (error) {
-    output.textContent = `Error reading recipes: ${error}`;
+    console.error("Error rendering recipes:", error);
   }
-});
+}
 
-});
+// Initial render
+renderRecipes();
