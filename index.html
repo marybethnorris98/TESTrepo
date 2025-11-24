@@ -1,337 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Marybeth’s Recipe Book</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Parisienne&family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin:0; padding:0;
-      background:#fff0f7;
-      color:#333;
-    }
-    .barbie-header {
-      background:#ffb6dd; text-align:center; padding:30px 0;
-      position:relative;
-    }
-    .barbie-text {
-      font-family: 'Playfair Display', serif;
-      font-size:2.8rem; color:#fff;
-      margin:0;
-    }
-    .sparkles .star, .sparkles .dot {
-      position:absolute;
-      animation: sparkle 2s infinite;
-    }
-    @keyframes sparkle {0%,100%{opacity:1;}50%{opacity:0.3;}}
-    .controls {display:flex; justify-content:center; gap:12px; margin:20px 0;}
-    .controls input, .controls select {padding:8px 12px; border-radius:8px; border:2px solid #ffb1db; font-size:16px; font-weight:bold; color:#f039b1; font-family:Poppins,sans-serif;}
-    .grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; padding:16px;}
-    .card {background:white; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden; cursor:pointer; position:relative;}
-    .card img {width:100%; height:180px; object-fit:cover;}
-    .card-content {padding:12px;}
-    .card-title {font-weight:700; font-size:18px; margin-bottom:4px; color:#a00064;}
-    .card-category {font-size:14px; font-weight:600; color:#f039b1; margin-bottom:8px;}
-    .card-desc {font-size:14px; color:#333;}
-    .card-info-icon {position:absolute; top:10px; right:10px; background:#ff3ebf; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer;}
-    .card-info-tooltip {position:absolute; top:40px; right:10px; background:white; padding:6px 10px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); display:none; font-size:12px; max-width:200px;}
-    .card-info-tooltip.visible {display:block;}
-
-    /* Modal */
-    .modal-overlay {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000;}
-    .modal-content {background:white; border-radius:12px; padding:20px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; position:relative;}
-    .modal-content h1,h2,h3 {margin-top:0;}
-    .close-btn {position:absolute; top:12px; right:12px; border:none; background:none; font-size:20px; cursor:pointer; color:#a00;}
-    .modal-btn {padding:10px 16px; background:#ff3ebf; color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px;}
-    .scrollable-list {max-height:200px; overflow-y:auto; margin-bottom:16px;}
-
-    /* Add recipe modal buttons */
-    .save-btn {padding:14px 18px; background:#ff3ebf; color:white; border:none; border-radius:12px; font-size:16px; width:100%; cursor:pointer; margin-top:12px;}
-    .small-add-btn {padding:6px 12px; background:#ffb1db; color:white; border:none; border-radius:8px; margin-bottom:12px; cursor:pointer;}
-
-    /* Admin Controls */
-    #adminControlsContainer button {font-family:Poppins,sans-serif;}
-  </style>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC95ggTgS2Ew1MavuzEZrIvq6itTyxVdhA",
-      authDomain: "recipeapp-248a1.firebaseapp.com",
-      projectId: "recipeapp-248a1",
-      storageBucket: "recipeapp-248a1.appspot.com",
-      messagingSenderId: "629558122940",
-      appId: "G-7W26GEB9WX"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // -----------------------------
-    // ADMIN STATE
-    // -----------------------------
-    let isAdmin = false;
-
-    const CATEGORIES = ["Breakfast", "Meals", "Snacks", "Sides", "Dessert", "Drinks"];
-    let editingRecipeId = null;
-    let editingDraftId = null;
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      const recipeGrid = document.getElementById("recipeGrid");
-      const searchInput = document.getElementById("searchInput");
-      const categoryFilter = document.getElementById("categoryFilter");
-
-      const addRecipeModal = document.getElementById("addRecipeModal");
-      const newTitle = document.getElementById("newTitle");
-      const newCategory = document.getElementById("newCategory");
-      const newImage = document.getElementById("newImage");
-      const newDesc = document.getElementById("newDesc");
-      const ingredientsList = document.getElementById("ingredientsList");
-      const instructionsList = document.getElementById("instructionsList");
-      const addIngredientBtn = document.getElementById("addIngredientBtn");
-      const addInstructionBtn = document.getElementById("addInstructionBtn");
-      const saveRecipeBtn = document.getElementById("saveRecipeBtn");
-
-      const viewer = document.getElementById("recipeModal");
-      const closeBtn = document.getElementById("closeViewerBtn");
-      const modalTitle = document.getElementById("modalTitle");
-      const modalCategory = document.getElementById("modalCategory");
-      const modalDesc = document.getElementById("modalDescription");
-      const modalIngredients = document.getElementById("modalIngredients");
-      const modalInstructions = document.getElementById("modalInstructions");
-      const modalImage = document.getElementById("modalImage");
-      const modalEditBtn = document.getElementById("modalEditBtn");
-      const modalDeleteBtn = document.getElementById("modalDeleteBtn");
-      const modalHideBtn = document.getElementById("modalHideBtn");
-
-      const loginModal = document.getElementById("loginModal");
-      const loginBtn = document.getElementById("loginBtn");
-      const loginError = document.getElementById("loginError");
-
-      // Populate category selects
-      [newCategory, categoryFilter].forEach(select => {
-        select.innerHTML = "";
-        if (select === categoryFilter) select.innerHTML = `<option value="all">All</option>`;
-        CATEGORIES.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
-      });
-
-      // -----------------------------
-      // FETCH RECIPES FROM FIRESTORE
-      // -----------------------------
-      async function fetchRecipes() {
-        const snapshot = await getDocs(collection(db,"recipes"));
-        return snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
-      }
-
-      // -----------------------------
-      // RENDER
-      // -----------------------------
-      async function renderRecipes() {
-        const recipes = await fetchRecipes();
-        const searchTerm = (searchInput?.value || "").toLowerCase();
-        const selectedCategory = categoryFilter?.value || "all";
-
-        recipeGrid.innerHTML = "";
-
-        recipes.filter(r => (!r.hidden || isAdmin))
-               .filter(r => r.title.toLowerCase().includes(searchTerm) || r.description.toLowerCase().includes(searchTerm))
-               .filter(r => selectedCategory==="all" || r.category===selectedCategory)
-               .forEach(recipe => {
-          const card = document.createElement("div");
-          card.className="card";
-          card.innerHTML=`
-            <img src="${recipe.image}" alt="${recipe.title}">
-            <div class="card-content">
-              <div class="card-title">${recipe.title}</div>
-              <div class="card-category">${recipe.category}</div>
-              <div class="card-desc">${recipe.description}</div>
-            </div>
-            <div class="card-info-icon">i</div>
-            <div class="card-info-tooltip">${recipe.credits||"No credits added."}</div>
-          `;
-          card.querySelector(".card-info-icon").addEventListener("click", e=>{e.stopPropagation(); card.querySelector(".card-info-tooltip").classList.toggle("visible");});
-          document.addEventListener("click", ()=>card.querySelector(".card-info-tooltip").classList.remove("visible"));
-          card.addEventListener("click", ()=>openRecipeModal(recipe));
-          recipeGrid.appendChild(card);
-        });
-      }
-
-      // -----------------------------
-      // OPEN MODAL
-      // -----------------------------
-      function openRecipeModal(recipe) {
-        if(!viewer) return;
-        modalTitle.textContent = recipe.title;
-        modalCategory.textContent = recipe.category;
-        modalDesc.textContent = recipe.description;
-        modalImage.src = recipe.image;
-
-        modalIngredients.innerHTML = recipe.ingredients?.map(i=>`<li>${i}</li>`).join("")||"";
-        modalInstructions.innerHTML = recipe.instructions?.map(i=>`<li>${i}</li>`).join("")||"";
-
-        if(isAdmin){
-          modalEditBtn.style.display="inline-block";
-          modalHideBtn.style.display="inline-block";
-          modalDeleteBtn.style.display="inline-block";
-
-          modalEditBtn.onclick = ()=>populateAddModal(recipe);
-          modalHideBtn.onclick = async ()=>{
-            await updateDoc(doc(db,"recipes",recipe.id),{hidden:!recipe.hidden});
-            renderRecipes(); viewer.style.display="none";
-          };
-          modalDeleteBtn.onclick = async ()=>{
-            if(confirm(`Delete ${recipe.title}?`)) { await deleteDoc(doc(db,"recipes",recipe.id)); renderRecipes(); viewer.style.display="none"; }
-          };
-        } else {
-          modalEditBtn.style.display="none";
-          modalHideBtn.style.display="none";
-          modalDeleteBtn.style.display="none";
-        }
-
-        viewer.style.display="flex";
-      }
-
-      closeBtn.addEventListener("click", ()=>viewer.style.display="none");
-      viewer.addEventListener("click", e=>{if(e.target===viewer)viewer.style.display="none";});
-
-      searchInput.addEventListener("input", renderRecipes);
-      categoryFilter.addEventListener("change", renderRecipes);
-
-      // -----------------------------
-      // ADMIN LOGIN
-      // -----------------------------
-      loginBtn.addEventListener("click", ()=>{
-        const entered = document.getElementById("adminPassword").value;
-        if(entered==="pinkrecipes"){isAdmin=true; loginModal.classList.add("hidden"); renderRecipes();}
-        else loginError.style.display="block";
-      });
-
-      // -----------------------------
-      // ADD/EDIT MODAL
-      // -----------------------------
-      addIngredientBtn.addEventListener("click", ()=>ingredientsList.appendChild(makeRowInput("Ingredient")));
-      addInstructionBtn.addEventListener("click", ()=>instructionsList.appendChild(makeRowInput("Step")));
-
-      function makeRowInput(placeholder){ 
-        const row=document.createElement("div"); 
-        const input=document.createElement("input"); 
-        input.placeholder=placeholder; 
-        row.appendChild(input); 
-        const btn=document.createElement("button"); btn.textContent="✖"; btn.type="button"; btn.onclick=()=>row.remove(); 
-        row.appendChild(btn); return row;
-      }
-
-      function clearAddModal(){ newTitle.value=""; newCategory.value=CATEGORIES[0]; newImage.value=""; newDesc.value=""; ingredientsList.innerHTML=""; instructionsList.innerHTML=""; editingRecipeId=null; editingDraftId=null; }
-
-      function populateAddModal(recipe){
-        addRecipeModal.style.display="flex";
-        newTitle.value=recipe.title;
-        newCategory.value=recipe.category;
-        newImage.value=recipe.image;
-        newDesc.value=recipe.description;
-        recipe.ingredients?.forEach(i=>ingredientsList.appendChild(makeRowInput(i)));
-        recipe.instructions?.forEach(i=>instructionsList.appendChild(makeRowInput(i)));
-        editingRecipeId = recipe.id;
-      }
-
-      saveRecipeBtn.addEventListener("click", async ()=>{
-        const recipeData={
-          title:newTitle.value, category:newCategory.value, image:newImage.value,
-          description:newDesc.value,
-          ingredients:[...ingredientsList.querySelectorAll("input")].map(i=>i.value),
-          instructions:[...instructionsList.querySelectorAll("input")].map(i=>i.value),
-          credits:"", hidden:false
-        };
-        if(editingRecipeId){
-          await updateDoc(doc(db,"recipes",editingRecipeId),recipeData);
-        } else {
-          await addDoc(collection(db,"recipes"),recipeData);
-        }
-        clearAddModal();
-        addRecipeModal.style.display="none";
-        renderRecipes();
-      });
-
-      renderRecipes();
-    });
-  </script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="barbie-header">
-  <h1 class="barbie-text">Marybeth’s<br>Recipe Book</h1>
-  <div class="sparkles" aria-hidden="true">
-    <span class="star star-1">✦</span>
-    <span class="star star-2">✦</span>
-    <span class="star star-3">✦</span>
-    <span class="star star-4">✦</span>
-    <span class="dot dot-1">•</span>
-    <span class="dot dot-2">•</span>
-    <span class="dot dot-3">•</span>
-    <span class="dot dot-4">•</span>
-  </div>
-</header>
+  <!-- HEADER -->
+  <header class="barbie-header">
+    <h1 class="barbie-text">Marybeth’s<br>Recipe Book</h1>
+    <div class="sparkles" aria-hidden="true">
+      <span class="star star-1">✦</span>
+      <span class="star star-2">✦</span>
+      <span class="star star-3">✦</span>
+      <span class="star star-4">✦</span>
+      <span class="dot dot-1">•</span>
+      <span class="dot dot-2">•</span>
+      <span class="dot dot-3">•</span>
+      <span class="dot dot-4">•</span>
+    </div>
+  </header>
 
-<section class="controls">
-  <input id="searchInput" placeholder="Search recipes...">
-  <select id="categoryFilter"></select>
-</section>
+  <!-- Controls -->
+  <section class="controls">
+    <input id="searchInput" type="text" placeholder="Search recipes..." />
+    <select id="categoryFilter"></select>
+  </section>
 
-<section id="recipeGrid" class="grid"></section>
+  <!-- Recipe Grid -->
+  <section id="recipeGrid" class="grid"></section>
 
-<div id="recipeModal" class="modal-overlay">
-  <div class="modal-content">
-    <button id="closeViewerBtn" class="close-btn">✖</button>
-    <img id="modalImage" src="" alt="">
-    <h1 id="modalTitle"></h1>
-    <div id="modalCategory"></div>
-    <div id="modalDescription"></div>
-    <h2>Ingredients</h2>
-    <ul id="modalIngredients"></ul>
-    <h2>Instructions</h2>
-    <ol id="modalInstructions"></ol>
-    <div id="modalButtons" style="display:flex;gap:10px;margin-top:10px;">
-      <button id="modalEditBtn" class="modal-btn">Edit</button>
-      <button id="modalHideBtn" class="modal-btn">Hide</button>
-      <button id="modalDeleteBtn" class="modal-btn">Delete</button>
+  <!-- Recipe Viewer Modal -->
+  <div id="recipeModal" class="modal-overlay" style="display:none" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close-btn" id="closeViewerBtn">✖</button>
+      <img id="modalImage" class="modal-image" src="" alt="">
+      <h1 id="modalTitle"></h1>
+      <div id="modalCategory"></div>
+      <div id="modalDescription"></div>
+
+      <h2>Ingredients</h2>
+      <div class="scrollable-list">
+        <ul id="modalIngredients"></ul>
+      </div>
+
+      <h2>Instructions</h2>
+      <div class="scrollable-list">
+        <ol id="modalInstructions"></ol>
+      </div>
+
+      <div id="modalButtons">
+        <button id="modalEditBtn">Edit</button>
+        <button id="modalHideBtn">Hide</button>
+        <button id="modalDeleteBtn">Delete</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="loginModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2>Admin Login</h2>
-    <input id="adminPassword" type="password" placeholder="Password">
-    <button id="loginBtn">Unlock</button>
-    <p id="loginError" style="color:red; display:none;">Incorrect password.</p>
+  <!-- Admin Login Modal -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Admin Login</h2>
+      <input id="adminPassword" type="password" placeholder="Enter password">
+      <button id="loginBtn">Unlock</button>
+      <p id="loginError">Incorrect password.</p>
+    </div>
   </div>
-</div>
 
-<div id="addRecipeModal" class="modal-overlay">
-  <div class="modal-content">
-    <h2>Add Recipe</h2>
-    <input id="newTitle" placeholder="Title">
-    <select id="newCategory"></select>
-    <input id="newImage" placeholder="Image URL">
-    <textarea id="newDesc" placeholder="Description"></textarea>
-    <h3>Ingredients</h3>
-    <div id="ingredientsList"></div>
-    <button id="addIngredientBtn" class="small-add-btn">+ Add Ingredient</button>
-    <h3>Instructions</h3>
-    <div id="instructionsList"></div>
-    <button id="addInstructionBtn" class="small-add-btn">+ Add Step</button>
-    <button id="saveRecipeBtn" class="save-btn">Save Recipe</button>
+  <!-- Add Recipe Modal -->
+  <div id="addRecipeModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add Recipe</h2>
+      <input type="hidden" id="editingIndex">
+
+      <input id="newTitle" placeholder="Title">
+      <select id="newCategory"></select>
+      <input id="newImage" placeholder="Image URL">
+      <textarea id="newDesc" placeholder="Short description"></textarea>
+      <input id="credits" placeholder="Credits (optional)">
+      <input id="tags" placeholder="Tags (comma-separated)">
+      <label><input type="checkbox" id="hidden"> Hidden</label>
+      <label><input type="checkbox" id="draft"> Save as Draft</label>
+
+      <h3>Ingredients</h3>
+      <div id="ingredientsList"></div>
+      <button id="addIngredientBtn">+ Add Ingredient</button>
+
+      <h3>Instructions</h3>
+      <div id="instructionsList"></div>
+      <button id="addInstructionBtn">+ Add Step</button>
+
+      <button id="saveRecipeBtn">Save Recipe</button>
+      <button id="saveDraftBtn">Save Draft</button>
+    </div>
   </div>
-</div>
 
+  <script type="module" src="script.js"></script>
 </body>
 </html>
