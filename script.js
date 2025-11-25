@@ -120,8 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   draftsModal = document.getElementById("draftsModal"); // Added 'draftsModal'
   draftsList = document.getElementById("draftsList"); // Added 'draftsList'
   closeDraftsBtn = document.getElementById("closeDraftsBtn"); // Added 'closeDraftsBtn'
-  
-  // --- APPLY STYLING TO STATIC BUTTONS (FIX #2: Save Recipe Button Styling) ---
+  
   if (saveRecipeBtn) {
     Object.assign(saveRecipeBtn.style, {
         background: "#ff3ebf",
@@ -138,7 +137,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         fontWeight: "bold",
     });
   }
+const primaryPink = "#ff3ebf";
 
+  if (searchInput) {
+    Object.assign(searchInput.style, {
+        fontFamily: "Poppins, sans-serif",
+    });
+  }
+
+  if (categoryFilter) {
+    Object.assign(categoryFilter.style, {
+        fontFamily: "Poppins, sans-serif",
+        color: primaryPink,
+        fontWeight: "bold",
+        border: `2px solid ${primaryPink}`,
+        borderRadius: "8px",
+        padding: "8px 12px",
+    });
+  }
   // -----------------------------
   // CATEGORY DROPDOWN
   // -----------------------------
