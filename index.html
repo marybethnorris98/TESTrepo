@@ -97,8 +97,18 @@
       <button id="addInstructionBtn" class="small-add-btn">+ Add Step</button>
 
       <button id="saveRecipeBtn" class="save-btn">Save Recipe</button>
+      <button id="saveDraftBtn" type="button" style="/* styles will be applied by JS */">Save Draft</button>
     </div>
   </div>
+
+  <div id="draftsModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-btn" id="closeDraftsBtn">&times;</span>
+        <h2>Your Drafts</h2>
+        <div id="draftsList">
+            </div>
+    </div>
+</div>
 
   <!-- YOUR SCRIPT -->
    <script type="module" src="script.js"></script>
