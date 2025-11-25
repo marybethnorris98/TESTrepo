@@ -378,7 +378,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 2. Apply matching/contrasting styles for correct appearance and spacing
     Object.assign(saveDraftBtn.style, {
         background: "#ff3ebf", // Lighter pink for Draft (as in your old code)
-        color: "#white",
+        color: "white",
         border: "none",
         padding: "14px 18px",
         fontSize: "18px",
@@ -484,7 +484,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   addIngredientBtn?.addEventListener("click", () => ingredientsList.appendChild(makeRowInput("Ingredient")));
   addInstructionBtn?.addEventListener("click", () => instructionsList.appendChild(makeRowInput("Step")));
-
+  saveDraftBtn?.addEventListener("click", saveDraft);
   // -----------------------------
   // SAVE DRAFT
   // -----------------------------
