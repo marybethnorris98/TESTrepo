@@ -21,12 +21,13 @@ import {
 // FIREBASE CONFIG
 // -----------------------------
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER",
-  appId: "YOUR_APP_ID"
+ apiKey: "AIzaSyC95ggTgS2Ew1MavuzEZrIvq6itTyxVdhA",
+  authDomain: "recipeapp-248a1.firebaseapp.com",
+  projectId: "recipeapp-248a1",
+  storageBucket: "recipeapp-248a1.firebasestorage.app",
+  messagingSenderId: "629558122940",
+  appId: "1:629558122940:web:65dcca8ea0c572ccdf33b9",
+  measurementId: "G-7W26GEB9WX"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -37,7 +38,7 @@ const db = getFirestore(app);
 let isAdmin = localStorage.getItem("admin") === "true";
 
 // -----------------------------
-// DEFAULT RECIPES
+// DEFAULT RECIPES (Unused, kept for reference)
 // -----------------------------
 const defaultRecipes = [
   {
@@ -79,35 +80,47 @@ const CATEGORIES = ["Breakfast", "Meals", "Snacks", "Sides", "Dessert", "Drinks"
 // -----------------------------
 let recipes = [];
 let drafts = [];
-let editingDraftId = null;
-let editingRecipeId = null;
+let editingDraftId = null; // ID of the draft being edited/loaded
+let editingRecipeId = null; // ID of the recipe being edited/loaded
 
 // -----------------------------
-// DOM ELEMENTS
+// DOM ELEMENTS (Declared globally or in the event listener scope)
 // -----------------------------
+let recipeGrid, searchInput, categoryFilter;
+let addRecipeModal, newTitle, newCategory, newImage, newDesc, ingredientsList, instructionsList, saveRecipeBtn, addIngredientBtn, addInstructionBtn, saveDraftBtn;
+let viewer, closeBtn;
+let loginModal, loginBtn, loginError;
+let draftsModal, draftsList, closeDraftsBtn;
+
 document.addEventListener("DOMContentLoaded", async () => {
-  const recipeGrid = document.getElementById("recipeGrid");
-  const searchInput = document.getElementById("searchInput");
-  const categoryFilter = document.getElementById("categoryFilter");
+  // --- DOM ELEMENT Assignments ---
+  recipeGrid = document.getElementById("recipeGrid");
+  searchInput = document.getElementById("searchInput");
+  categoryFilter = document.getElementById("categoryFilter");
 
-  const addRecipeModal = document.getElementById("addRecipeModal");
-  const newTitle = document.getElementById("newTitle");
-  const newCategory = document.getElementById("newCategory");
-  const newImage = document.getElementById("newImage");
-  const newDesc = document.getElementById("newDesc");
-  const ingredientsList = document.getElementById("ingredientsList");
-  const instructionsList = document.getElementById("instructionsList");
-  const saveRecipeBtn = document.getElementById("saveRecipeBtn");
-  const addIngredientBtn = document.getElementById("addIngredientBtn");
-  const addInstructionBtn = document.getElementById("addInstructionBtn");
+  addRecipeModal = document.getElementById("addRecipeModal");
+  newTitle = document.getElementById("newTitle");
+  newCategory = document.getElementById("newCategory");
+  newImage = document.getElementById("newImage");
+  newDesc = document.getElementById("newDesc");
+  ingredientsList = document.getElementById("ingredientsList");
+  instructionsList = document.getElementById("instructionsList");
+  saveRecipeBtn = document.getElementById("saveRecipeBtn");
+  addIngredientBtn = document.getElementById("addIngredientBtn");
+  addInstructionBtn = document.getElementById("addInstructionBtn");
+  saveDraftBtn = document.getElementById("saveDraftBtn"); // Added 'saveDraftBtn'
 
-  const viewer = document.getElementById("recipeModal");
-  const closeBtn = document.getElementById("closeViewerBtn");
+  viewer = document.getElementById("recipeModal");
+  closeBtn = document.getElementById("closeViewerBtn");
 
-  const loginModal = document.getElementById("loginModal");
-  const loginBtn = document.getElementById("loginBtn");
-  const loginError = document.getElementById("loginError");
+  loginModal = document.getElementById("loginModal");
+  loginBtn = document.getElementById("loginBtn");
+  loginError = document.getElementById("loginError");
 
+  draftsModal = document.getElementById("draftsModal"); // Added 'draftsModal'
+  draftsList = document.getElementById("draftsList"); // Added 'draftsList'
+  closeDraftsBtn = document.getElementById("closeDraftsBtn"); // Added 'closeDraftsBtn'
+  
   // -----------------------------
   // CATEGORY DROPDOWN
   // -----------------------------
@@ -132,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateCategorySelects();
 
   // -----------------------------
-  // FIRESTORE FETCH RECIPES
+  // FIRESTORE FETCH RECIPES & DRAFTS
   // -----------------------------
   async function loadRecipes() {
     const recipesCol = collection(db, "recipes");
@@ -144,7 +157,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function loadDrafts() {
     const draftsCol = collection(db, "drafts");
-    const snapshot = await getDocs(draftsCol);
+    const q = query(draftsCol, orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
     drafts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
@@ -231,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const modalDeleteBtn = document.getElementById("modalDeleteBtn");
     const hideBtn = document.getElementById("modalHideBtn");
 
-    editingRecipeId = recipe.id;
+    editingRecipeId = recipe.id; // Set editingRecipeId for the recipe being viewed
 
     if (modalImg) {
       modalImg.src = recipe.image || "";
@@ -265,7 +279,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       hideBtn.style.display = "inline-block";
 
       modalEditBtn.onclick = () => {
-        populateAddModalFromDraft(recipe);
+        // When editing a final recipe, set both IDs
+        editingRecipeId = recipe.id;
+        editingDraftId = null; // Clear draft ID
+        populateAddModalFromRecipeOrDraft(recipe);
         addRecipeModal.classList.remove("hidden");
         viewer.style.display = "none";
       };
@@ -282,6 +299,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.stopPropagation();
         await updateDoc(doc(db, "recipes", recipe.id), { hidden: !recipe.hidden });
         await loadRecipes();
+        viewer.style.display = "none";
       };
     } else {
       modalEditBtn.style.display = "none";
@@ -344,7 +362,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const addBtn = document.createElement("button");
     addBtn.textContent = "+ Add Recipe";
     Object.assign(addBtn.style, { background:"#ff3ebf", color:"white", padding:"12px 16px", borderRadius:"14px", border:"none", fontSize:"16px", cursor:"pointer", fontFamily:"Poppins, sans-serif", boxShadow:"0 8px 20px rgba(0,0,0,0.15)" });
-    addBtn.onclick = () => { editingDraftId = null; clearAddModal(); addRecipeModal.classList.remove("hidden"); };
+    addBtn.onclick = () => { editingDraftId = null; editingRecipeId = null; clearAddModal(); addRecipeModal.classList.remove("hidden"); }; // Clear both IDs for new recipe
 
     const draftsBtn = document.createElement("button");
     draftsBtn.textContent = "Drafts";
@@ -356,6 +374,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.appendChild(container);
 
     addLogoutButton();
+    // Add Save Draft Button to the Add Recipe Modal (assuming a placeholder element exists)
+    if (addRecipeModal) {
+      const draftButton = document.createElement("button");
+      draftButton.id = "saveDraftBtn";
+      draftButton.textContent = "Save Draft";
+      draftButton.type = "button";
+      Object.assign(draftButton.style, { background:"#9c27b0", color:"white", padding:"10px 15px", borderRadius:"8px", border:"none", fontSize:"14px", cursor:"pointer", fontFamily:"Poppins, sans-serif", marginTop:"10px" });
+      const containerInModal = addRecipeModal.querySelector(".modal-buttons") || saveRecipeBtn.parentElement;
+      if (containerInModal) containerInModal.prepend(draftButton); // Add before save button
+      saveDraftBtn = document.getElementById("saveDraftBtn");
+      saveDraftBtn.addEventListener("click", saveDraft);
+    }
   }
 
   function addLogoutButton() {
@@ -389,26 +419,72 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function clearAddModal() {
     newTitle.value=""; newCategory.value=CATEGORIES[0]; newImage.value=""; newDesc.value="";
-    ingredientsList.innerHTML=""; instructionsList.innerHTML=""; editingDraftId=null; editingRecipeId=null;
+    ingredientsList.innerHTML=""; instructionsList.innerHTML="";
+    // Do not clear editing IDs here, they are cleared when opening modal for a new recipe
   }
 
-  function populateAddModalFromDraft(d) {
+  function populateAddModalFromRecipeOrDraft(d) {
     clearAddModal();
     newTitle.value=d.title||""; newCategory.value=d.category||CATEGORIES[0]; newImage.value=d.image||""; newDesc.value=d.description||"";
     (d.ingredients||[]).forEach(i => { const r=makeRowInput("Ingredient"); r.querySelector("input").value=i; ingredientsList.appendChild(r); });
     (d.instructions||[]).forEach(s => { const r=makeRowInput("Step"); r.querySelector("input").value=s; instructionsList.appendChild(r); });
-    editingRecipeId = d.id;
+    // If loading from a draft, set its ID for saving later
+    if (d.id && drafts.some(draft => draft.id === d.id)) {
+        editingDraftId = d.id;
+        editingRecipeId = d.forRecipeId || null; // Carry over if editing an existing recipe
+    } else {
+        editingDraftId = null;
+        editingRecipeId = d.id; // If loading from a final recipe
+    }
   }
 
   addIngredientBtn?.addEventListener("click", () => ingredientsList.appendChild(makeRowInput("Ingredient")));
   addInstructionBtn?.addEventListener("click", () => instructionsList.appendChild(makeRowInput("Step")));
 
   // -----------------------------
+  // SAVE DRAFT
+  // -----------------------------
+  async function saveDraft() {
+    const title = newTitle.value.trim() || `Draft: ${new Date().toLocaleTimeString()}`;
+    const category = newCategory.value || CATEGORIES[0];
+    const image = newImage.value.trim();
+    const description = newDesc.value.trim();
+
+    const ingredients = [...ingredientsList.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean);
+    const instructions = [...instructionsList.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean);
+
+    const data = {
+      title,
+      category,
+      image,
+      description,
+      ingredients,
+      instructions,
+      timestamp: serverTimestamp(),
+      forRecipeId: editingRecipeId || null, // Preserve the ID of the recipe being edited
+    };
+
+    let docRef;
+    if (editingDraftId) {
+      docRef = doc(db, "drafts", editingDraftId);
+      await updateDoc(docRef, data);
+      alert(`Draft "${title}" updated!`);
+    } else {
+      docRef = doc(collection(db, "drafts"));
+      await setDoc(docRef, data);
+      editingDraftId = docRef.id; // Set ID for potential future updates
+      alert(`Draft "${title}" saved!`);
+    }
+
+    await loadDrafts();
+  }
+
+  // -----------------------------
   // SAVE RECIPE
   // -----------------------------
   saveRecipeBtn?.addEventListener("click", async () => {
     const title=newTitle.value.trim(), category=newCategory.value||CATEGORIES[0],
-          image=newImage.value.trim(), description=newDesc.value.trim();
+              image=newImage.value.trim(), description=newDesc.value.trim();
     if (!title || !image || !description) return alert("Fill title, image, description.");
 
     const ingredients=[...ingredientsList.querySelectorAll("input")].map(i=>i.value.trim()).filter(Boolean);
@@ -416,23 +492,83 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const data={ title, category, image, description, ingredients, instructions, hidden:false, credits:"" };
 
+    let recipeDocId = editingRecipeId;
     if (editingRecipeId) {
       await setDoc(doc(db,"recipes",editingRecipeId), data);
     } else {
       const newDoc = doc(collection(db,"recipes"));
       await setDoc(newDoc, data);
+      recipeDocId = newDoc.id;
     }
 
-    clearAddModal(); addRecipeModal.classList.add("hidden"); await loadRecipes();
+    // After successfully saving/updating the recipe, delete the associated draft if one exists
+    if (editingDraftId) {
+      await deleteDoc(doc(db, "drafts", editingDraftId));
+      await loadDrafts(); // Update drafts list
+    }
+
+    clearAddModal();
+    editingRecipeId = null; // Clear all IDs
+    editingDraftId = null;
+    addRecipeModal.classList.add("hidden");
+    await loadRecipes();
   });
 
   // -----------------------------
   // DRAFTS MODAL
   // -----------------------------
   async function openDraftsModal() {
+    if (!draftsModal) return;
+
     await loadDrafts();
-    // similar to previous drafts modal UI code, but now uses Firestore drafts collection
-    // implement UI exactly as before, replacing localStorage with Firestore calls
+    draftsList.innerHTML = ""; // Clear existing list
+
+    if (drafts.length === 0) {
+      draftsList.innerHTML = "<p>No drafts saved.</p>";
+    } else {
+      const ul = document.createElement("ul");
+      ul.className = "drafts-list";
+      drafts.forEach(draft => {
+        const li = document.createElement("li");
+        li.className = "draft-item";
+        li.innerHTML = `
+          <div class="draft-title-container">
+            <span>${draft.title || 'Untitled Draft'}</span>
+            ${draft.timestamp ? `<small class="draft-timestamp">(${new Date(draft.timestamp.seconds * 1000).toLocaleString()})</small>` : ''}
+          </div>
+          <div class="draft-actions">
+            <button class="load-draft-btn" data-id="${draft.id}">Load</button>
+            <button class="delete-draft-btn" data-id="${draft.id}">Delete</button>
+          </div>
+        `;
+        ul.appendChild(li);
+
+        li.querySelector(".load-draft-btn").addEventListener("click", () => {
+          editingDraftId = draft.id;
+          editingRecipeId = draft.forRecipeId || null;
+          populateAddModalFromRecipeOrDraft(draft);
+          draftsModal.classList.add("hidden");
+          addRecipeModal.classList.remove("hidden");
+        });
+
+        li.querySelector(".delete-draft-btn").addEventListener("click", async () => {
+          if (!confirm(`Are you sure you want to delete the draft: ${draft.title}?`)) return;
+          await deleteDoc(doc(db, "drafts", draft.id));
+          await openDraftsModal(); // Reload drafts modal
+        });
+      });
+      draftsList.appendChild(ul);
+    }
+
+    draftsModal.classList.remove("hidden");
+  }
+
+  // Close Drafts Modal functionality
+  if (closeDraftsBtn) {
+    closeDraftsBtn.addEventListener("click", () => { draftsModal.classList.add("hidden"); });
+  }
+  if (draftsModal) {
+    draftsModal.addEventListener("click", e => { if (e.target === draftsModal) draftsModal.classList.add("hidden"); });
   }
 
   // -----------------------------
