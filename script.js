@@ -317,6 +317,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     closeBtn.addEventListener("click", () => { viewer.style.display = "none"; });
     viewer.addEventListener("click", e => { if (e.target === viewer) viewer.style.display = "none"; });
   }
+  if (addRecipeModal) {
+    addRecipeModal.addEventListener("click", e => {
+      if (e.target === addRecipeModal) {
+        if (confirm("Discard unsaved changes and close?")) {
+          clearAddModal();
+          addRecipeModal.classList.add("hidden");
+        }
+      }
+    });
+  }
 
   // -----------------------------
   // SEARCH & FILTER
