@@ -438,7 +438,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   function addLogoutButton() {
     if (!document.getElementById("adminControlsContainer")) return;
     if (document.getElementById("logoutBtn")) return;
-
     const logoutBtn = document.createElement("button");
     logoutBtn.id = "logoutBtn";
     logoutBtn.textContent = "Logout";
