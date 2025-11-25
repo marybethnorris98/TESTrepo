@@ -172,15 +172,17 @@ body {
 }
 
 .save-btn {
-  background: #ff3ebf;
-  color: white;
-  border: none;
-  padding: 14px 18px;
-  font-size: 18px;
-  border-radius: 12px;
-  width: 100%;
-  cursor: pointer;
-  fontfamily: Poppins, San-Serif;
+  background: "#ff3ebf",
+        color: "white",
+        border: "none",
+        padding: "14px 18px",
+        fontSize: "18px",
+        fontFamily: "Poppins, San-Serif",
+        borderRadius: "12px",
+        width: "100%",
+        cursor: "pointer",
+        marginBottom: "15px", // Spacing before the main save button
+        marginTop: "15 px",
 }
 
 .admin-row {
