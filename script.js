@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       draftButton.id = "saveDraftBtn";
       draftButton.textContent = "Save Draft";
       draftButton.type = "button";
-      Object.assign(draftButton.style, { background:"#9c27b0", color:"white", padding:"10px 15px", borderRadius:"8px", border:"none", fontSize:"14px", cursor:"pointer", fontFamily:"Poppins, sans-serif", marginTop:"10px" });
+      Object.assign(draftButton.style, { background:"#ff3ebf", color:"white", padding:"14px 18px", borderRadius:"12px", border:"none", fontSize:"18px", fontFamily= "Poppins, San-Serif", cursor:"pointer", fontFamily:"Poppins, sans-serif", marginTop:"10px" });
       const containerInModal = addRecipeModal.querySelector(".modal-buttons") || saveRecipeBtn.parentElement;
       if (containerInModal) containerInModal.prepend(draftButton); // Add before save button
       saveDraftBtn = document.getElementById("saveDraftBtn");
@@ -420,8 +420,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   function clearAddModal() {
     newTitle.value=""; newCategory.value=CATEGORIES[0]; newImage.value=""; newDesc.value="";
     ingredientsList.innerHTML=""; instructionsList.innerHTML="";
-    // Do not clear editing IDs here, they are cleared when opening modal for a new recipe
-  }
 
   function populateAddModalFromRecipeOrDraft(d) {
     clearAddModal();
