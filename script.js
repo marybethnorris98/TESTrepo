@@ -96,6 +96,7 @@ async function saveDraftToFirebase(draft) {
 async function deleteDraftFromFirebase(draftId) {
   try {
     await deleteDoc(doc(db, "drafts", draftId));
+    drafts = drafts.filter(d => d.id !== draftId);
   } catch (err) {
     console.error("Error deleting draft:", err);
   }
