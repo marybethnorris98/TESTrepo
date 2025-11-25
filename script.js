@@ -283,6 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         editingRecipeId = recipe.id;
         editingDraftId = null; // Clear draft ID
         populateAddModalFromRecipeOrDraft(recipe);
+        ensureAddModalControls();
         addRecipeModal.classList.remove("hidden");
         viewer.style.display = "none";
       };
@@ -362,63 +363,70 @@ document.addEventListener("DOMContentLoaded", async () => {
   // -----------------------------
   // ADMIN UI
   // -----------------------------
-  function ensureAddModalControls() {
-    if (!addRecipeModal) return;
-    const modalContent = addRecipeModal.querySelector(".modal-content");
-    if (!modalContent) return;
-    const saveBtn = modalContent.querySelector("#saveRecipeBtn");
+  // -----------------------------
+  // ADMIN UI
+  // -----------------------------
+  function ensureAddModalControls() {
+    if (!addRecipeModal) return;
+    const modalContent = addRecipeModal.querySelector(".modal-content");
+    if (!modalContent) return;
+    const saveBtn = modalContent.querySelector("#saveRecipeBtn");
 
-    // 1. Ensure the Save Draft button exists and is styled correctly
-    let saveDraftBtn = modalContent.querySelector("#saveDraftBtn");
-    if (!saveDraftBtn) {
-        saveDraftBtn = document.createElement("button");
-        saveDraftBtn.id = "saveDraftBtn";
-        saveDraftBtn.type = "button";
-        saveDraftBtn.innerText = "Save Draft";
-        saveDraftBtn.addEventListener("click", saveDraft); // NOTE: This should probably be saveDraft (as you defined it later)
+    // 1. Ensure the Save Draft button exists (using 'saveDraftBtnElement' for consistency)
+    let saveDraftBtnElement = modalContent.querySelector("#saveDraftBtn");
+    if (!saveDraftBtnElement) {
+        saveDraftBtnElement = document.createElement("button");
+        saveDraftBtnElement.id = "saveDraftBtn";
+        saveDraftBtnElement.type = "button";
+        saveDraftBtnElement.innerText = "Save Draft";
+        // Inject BEFORE the Save Recipe button
+        if (saveBtn) {
+            saveBtn.parentNode.insertBefore(saveDraftBtnElement, saveBtn);
+        } else {
+            modalContent.appendChild(saveDraftBtnElement);
+        }
+    }
 
-        // Inject BEFORE the Save Recipe button
-        if (saveBtn) {
-            saveBtn.parentNode.insertBefore(saveDraftBtn, saveBtn);
-        } else {
-            modalContent.appendChild(saveDraftBtn);
-        }
-    }
+    // --- Listener Cleanup and Reattachment (Fixes draft button click issue) ---
+    // Cloning the node removes old listeners, preventing duplicates.
+    const newDraftBtn = saveDraftBtnElement.cloneNode(true);
+    saveDraftBtnElement.parentNode.replaceChild(newDraftBtn, saveDraftBtnElement);
+    newDraftBtn.addEventListener("click", saveDraft);
+    **saveDraftBtnElement = newDraftBtn;** // Update the reference for styling below
 
-    // 2. Apply matching/contrasting styles for correct appearance and spacing
-    Object.assign(saveDraftBtn.style, {
-        background: "#ff3ebf", // Lighter pink for Draft (as in your old code)
-        color: "white",
-        border: "none",
-        padding: "14px 18px",
-        fontSize: "18px",
-        fontFamily: "Poppins, San-Serif",
-        borderRadius: "12px",
-        width: "100%",
-        cursor: "pointer",
-        marginBottom: "15px", // Spacing before the main save button
-        marginTop: "15 px",
-    });
+    // 2. Apply matching styles (Primary Pink: #ff3ebf)
+    **Object.assign(saveDraftBtnElement.style, {**         background: "#ff3ebf",
+        color: "white",
+        border: "none",
+        padding: "14px 18px",
+        fontSize: "18px",
+        fontFamily: "Poppins, San-Serif",
+        borderRadius: "12px",
+        width: "100%",
+        cursor: "pointer",
+        marginBottom: "15px", // Spacing before the main save button
+        marginTop: "15px", // Corrected space after "15 px"
+        fontWeight: "bold", // Added bold back for matching style
+    });
 
-    // 3. Big X close button (Keep this logic as it was correct)
-    if (!modalContent.querySelector(".add-modal-close-x")) {
-        const x = document.createElement("button");
-        x.className = "add-modal-close-x";
-        x.type = "button";
-        x.innerText = "✖";
-        x.title = "Close and discard";
-        x.style = "position:absolute;right:18px;top:14px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#a00;";
-        x.addEventListener("click", () => {
-            if (confirm("Discard changes and close?")) {
-                clearAddModal();
-                addRecipeModal.classList.add("hidden");
-            }
-        });
-        modalContent.style.position = modalContent.style.position || "relative";
-        modalContent.appendChild(x);
-    }
+    // 3. Big X close button (Keep this logic as it was correct)
+    if (!modalContent.querySelector(".add-modal-close-x")) {
+        const x = document.createElement("button");
+        x.className = "add-modal-close-x";
+        x.type = "button";
+        x.innerText = "✖";
+        x.title = "Close and discard";
+        x.style = "position:absolute;right:18px;top:14px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#a00;";
+        x.addEventListener("click", () => {
+            if (confirm("Discard changes and close?")) {
+                clearAddModal();
+                addRecipeModal.classList.add("hidden");
+            }
+        });
+        modalContent.style.position = modalContent.style.position || "relative";
+        modalContent.appendChild(x);
+    }
 }
-  
   function injectAdminUI() {
     if (document.getElementById("adminControlsContainer")) return;
 
