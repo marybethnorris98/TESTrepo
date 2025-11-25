@@ -764,17 +764,21 @@ saveRecipeBtn?.addEventListener("click", () => {
   // -----------------------------
   // Persist and refresh UI
   // -----------------------------
- await saveRecipeToFirebase(newRecipe);
-if (editingDraftId) {
-  await deleteDraftFromFirebase(editingDraftId);
-  editingDraftId = null;
+async function saveRecipeToFirebase(recipe) {
+  try {
+    if (recipe.id) {
+      await setDoc(doc(db, "recipes", recipe.id), recipe);
+    } else {
+      const docRef = await addDoc(collection(db, "recipes"), recipe);
+      recipe.id = docRef.id;
+    }
+    return recipe;
+  } catch (err) {
+    console.error("Error saving recipe:", err);
+    alert("Failed to save recipe");
+  }
 }
 
-  alert("Recipe saved!");
-  clearAddModal();
-  addRecipeModal.classList.add("hidden");
-  renderRecipes();
-});
 
   function saveDraftFromModal() {
   const title = (newTitle.value || "").trim();
