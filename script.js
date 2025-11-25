@@ -20,7 +20,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyC95ggTgS2Ew1MavuzEZrIvq6itTyxVdhA",
   authDomain: "recipeapp-248a1.firebaseapp.com",
   projectId: "recipeapp-248a1",
-  storageBucket: "recipeapp-248a1.firebasestorage.app",
+ storageBucket: "recipeapp-248a1.appspot.com",
   messagingSenderId: "629558122940",
   appId: "1:629558122940:web:65dcca8ea0c572ccdf33b9"
 };
@@ -28,6 +28,78 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// -----------------------------
+// FIRESTORE HELPERS
+// -----------------------------
+
+// Load recipes from Firestore
+async function loadRecipesFromFirebase() {
+  try {
+    const snapshot = await getDocs(collection(db, "recipes"));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error("Error loading recipes:", err);
+    return [];
+  }
+}
+
+// Save a recipe to Firestore
+async function saveRecipeToFirebase(recipe) {
+  try {
+    if (recipe.id) {
+      await setDoc(doc(db, "recipes", recipe.id), recipe);
+    } else {
+      const docRef = await addDoc(collection(db, "recipes"), recipe);
+      recipe.id = docRef.id;
+    }
+    return recipe;
+  } catch (err) {
+    console.error("Error saving recipe:", err);
+  }
+}
+
+// Delete a recipe from Firestore
+async function deleteRecipeFromFirebase(recipeId) {
+  try {
+    await deleteDoc(doc(db, "recipes", recipeId));
+  } catch (err) {
+    console.error("Error deleting recipe:", err);
+  }
+}
+
+// Load drafts from Firestore
+async function loadDraftsFromFirebase() {
+  try {
+    const snapshot = await getDocs(collection(db, "drafts"));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error("Error loading drafts:", err);
+    return [];
+  }
+}
+
+// Save a draft to Firestore
+async function saveDraftToFirebase(draft) {
+  try {
+    const draftRef = draft.id ? doc(db, "drafts", draft.id) : doc(collection(db, "drafts"));
+    await setDoc(draftRef, { ...draft, timestamp: serverTimestamp() });
+    draft.id = draftRef.id;
+    return draft;
+  } catch (err) {
+    console.error("Error saving draft:", err);
+    return draft;
+  }
+}
+
+// Delete a draft from Firestore
+async function deleteDraftFromFirebase(draftId) {
+  try {
+    await deleteDoc(doc(db, "drafts", draftId));
+  } catch (err) {
+    console.error("Error deleting draft:", err);
+  }
+}
 
 console.log("FULL admin + viewer Firebase script loaded");
 
@@ -83,9 +155,6 @@ const RECIPES_KEY = "recipes";
 const DRAFTS_KEY = "drafts_recipes";
 const CATEGORIES = ["Breakfast", "Meals", "Snacks", "Sides", "Dessert", "Drinks"];
 
-let recipes = JSON.parse(localStorage.getItem(RECIPES_KEY)) || defaultRecipes;
-let drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY)) || [];
-
 // -----------------------------
 // MAIN INITIALIZATION
 // -----------------------------
@@ -95,6 +164,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const recipeGrid = document.getElementById("recipeGrid");
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
+  document.addEventListener("DOMContentLoaded", async () => {
+  // Load recipes and drafts from Firestore
+  recipes = await loadRecipesFromFirebase();
+  drafts = await loadDraftsFromFirebase();
+  
+  // fallback if no recipes exist yet
+  if (!recipes.length) recipes = defaultRecipes;
+  
+  renderRecipes();
 
   const addRecipeModal = document.getElementById("addRecipeModal");
   const newTitle = document.getElementById("newTitle");
@@ -686,8 +764,11 @@ saveRecipeBtn?.addEventListener("click", () => {
   // -----------------------------
   // Persist and refresh UI
   // -----------------------------
-  localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes));
-  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+ await saveRecipeToFirebase(newRecipe);
+if (editingDraftId) {
+  await deleteDraftFromFirebase(editingDraftId);
+  editingDraftId = null;
+}
 
   alert("Recipe saved!");
   clearAddModal();
@@ -730,7 +811,7 @@ saveRecipeBtn?.addEventListener("click", () => {
     editingDraftId = draft.id;
   }
 
-  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+  await saveDraftToFirebase(draft);
 
   alert("Draft saved!");
   addRecipeModal.classList.add("hidden");
@@ -777,8 +858,7 @@ saveRecipeBtn?.addEventListener("click", () => {
     listContainer.innerHTML = "";
 
     try {
-      const res = await fetch("/drafts");
-      const serverDrafts = await res.json();
+      const serverDrafts = await loadDraftsFromFirebase();
 
       if (!serverDrafts.length) {
         const p = document.createElement("div");
