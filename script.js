@@ -424,7 +424,7 @@ function injectAdminUI() {
   });
 
   container.append(addBtn, draftsBtn, logoutBtn);
-  document.body.prepend(container);
+  document.getElementById("adminUI").appendChild(container);
 }
 
 // -----------------------------
