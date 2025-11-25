@@ -466,6 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function clearAddModal() {
     newTitle.value=""; newCategory.value=CATEGORIES[0]; newImage.value=""; newDesc.value="";
     ingredientsList.innerHTML=""; instructionsList.innerHTML="";
+  }
 
   function populateAddModalFromRecipeOrDraft(d) {
     clearAddModal();
