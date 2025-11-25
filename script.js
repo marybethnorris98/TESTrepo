@@ -55,6 +55,7 @@ const CATEGORIES = ["Breakfast", "Meals", "Snacks", "Sides", "Dessert", "Drinks"
 let recipes = [];
 let drafts = [];
 let editingRecipeIndex = null;
+let editingRecipeId = null;
 let editingDraftId = null;
 
 // -----------------------------
@@ -218,11 +219,16 @@ function renderRecipes() {
     const tooltip = document.createElement("div");
     tooltip.className = "card-info-tooltip";
     tooltip.textContent = recipe.credits || "No credits added.";
-    infoIcon.addEventListener("click", e => {
-      e.stopPropagation();
-      tooltip.classList.toggle("visible");
-    });
-    document.addEventListener("click", () => tooltip.classList.remove("visible"));
+infoIcon.addEventListener("click", e => {
+  e.stopPropagation();
+  tooltip.classList.toggle("visible");
+});
+document.body.addEventListener("click", e => {
+  if (!e.target.closest(".card-info-icon")) {
+    document.querySelectorAll(".card-info-tooltip.visible").forEach(t => t.classList.remove("visible"));
+  }
+});
+    
     card.append(infoIcon, tooltip);
 
     card.addEventListener("click", () => openRecipeModal(recipe));
@@ -238,7 +244,7 @@ function makeRowInput(placeholder = "") {
   row.className = "admin-row";
   const input = document.createElement("input");
   input.type = "text";
-  input.placeholder = placeholder;
+  input.value = placeholder;
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
   removeBtn.textContent = "✖";
@@ -268,8 +274,18 @@ function populateAddModalFromRecipe(recipe) {
   newDesc.value = recipe.description || "";
   newCredits.value = recipe.credits || "";
 
-  (recipe.ingredients || []).forEach(ing => ingredientsList.appendChild(makeRowInput(ing)));
-  (recipe.instructions || []).forEach(step => instructionsList.appendChild(makeRowInput(step)));
+  (recipe.ingredients || []).forEach(ing => {
+    const row = makeRowInput();
+    row.querySelector("input").value = ing;
+    ingredientsList.appendChild(row);
+});
+
+(recipe.instructions || []).forEach(step => {
+    const row = makeRowInput();
+    row.querySelector("input").value = step;
+    instructionsList.appendChild(row);
+});
+
 }
 
 function openRecipeModal(recipe) {
@@ -286,6 +302,7 @@ function openRecipeModal(recipe) {
   const hideBtn = document.getElementById("modalHideBtn");
 
   editingRecipeIndex = recipes.findIndex(r => r.id === recipe.id);
+  editingRecipeId = recipe.id;
 
   if (modalImg) { modalImg.src = recipe.image; modalImg.alt = recipe.title; }
   if (modalTitle) modalTitle.textContent = recipe.title;
@@ -370,14 +387,6 @@ document.getElementById("loginBtn")?.addEventListener("click", () => {
     renderRecipes();
   } else {
     document.getElementById("loginError").style.display = "block";
-  }
-});
-
-document.addEventListener("keydown", e => {
-  const key = e.key?.toLowerCase();
-  const mac = navigator.userAgent.includes("Mac");
-  if ((mac && e.metaKey && e.shiftKey && key === "m") || (!mac && e.ctrlKey && e.shiftKey && key === "m")) {
-    openLoginModal();
   }
 });
 
@@ -520,19 +529,22 @@ saveRecipeBtn?.addEventListener("click", async () => {
     credits,
     ingredients,
     instructions,
-    hidden: false
+    hidden: recipeData?.hidden ?? false
   };
 
   // If editing an existing recipe
-  if (editingRecipeIndex !== null) {
-    recipeData.id = recipes[editingRecipeIndex].id;
-    recipes[editingRecipeIndex] = recipeData;
+  if (editingRecipeId) {
+    recipeData.id = editingRecipeId;
+    const index = recipes.findIndex(r => r.id === editingRecipeId);
+    if (index !== -1) recipes[index] = recipeData;
     await saveRecipeToFirebase(recipeData);
-  } 
+}
   // If saving a draft
   else if (editingDraftId) {
     recipeData.id = editingDraftId;
     await saveDraftToFirebase(recipeData);
+    await deleteDraftFromFirebase(editingDraftId);
+    drafts = drafts.filter(d => d.id !== editingDraftId);
     editingDraftId = null;
   } 
   // New recipe
@@ -553,12 +565,6 @@ addIngredientBtn?.addEventListener("click", () => ingredientsList.appendChild(ma
 addInstructionBtn?.addEventListener("click", () => instructionsList.appendChild(makeRowInput("Instruction")));
 
 // -----------------------------
-// SEARCH & FILTER
-// -----------------------------
-searchInput?.addEventListener("input", renderRecipes);
-categoryFilter?.addEventListener("change", renderRecipes);
-
-// -----------------------------
 // CLOSE VIEWER
 // -----------------------------
 closeViewerBtn?.addEventListener("click", () => viewer.style.display = "none");
@@ -570,5 +576,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateCategorySelects();
   await loadRecipesFromFirebase();
   if (isAdmin) injectAdminUI();
+searchInput?.addEventListener("input", renderRecipes);
+  categoryFilter?.addEventListener("change", renderRecipes);
 });
 
