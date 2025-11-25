@@ -392,10 +392,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const newDraftBtn = saveDraftBtnElement.cloneNode(true);
     saveDraftBtnElement.parentNode.replaceChild(newDraftBtn, saveDraftBtnElement);
     newDraftBtn.addEventListener("click", saveDraft);
-    **saveDraftBtnElement = newDraftBtn;** // Update the reference for styling below
+    saveDraftBtnElement = newDraftBtn; // Update the reference for styling below
 
     // 2. Apply matching styles (Primary Pink: #ff3ebf)
-    **Object.assign(saveDraftBtnElement.style, {**         background: "#ff3ebf",
+    Object.assign(saveDraftBtnElement.style, {         
+        background: "#ff3ebf",
         color: "white",
         border: "none",
         padding: "14px 18px",
@@ -408,7 +409,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         marginTop: "15px", // Corrected space after "15 px"
         fontWeight: "bold", // Added bold back for matching style
     });
-
+if (saveRecipeBtn) {
+    Object.assign(saveRecipeBtn.style, {
+        background: "#ff3ebf",
+        color: "white",
+        border: "none",
+        padding: "14px 18px",
+        fontSize: "18px",
+        fontFamily: "Poppins, San-Serif",
+        borderRadius: "12px",
+        width: "100%",
+        cursor: "pointer",
+        marginBottom: "15px", 
+        marginTop: "15px", // Should sit right after the draft button's margin
+        fontWeight: "bold",
+    });
+  }
     // 3. Big X close button (Keep this logic as it was correct)
     if (!modalContent.querySelector(".add-modal-close-x")) {
         const x = document.createElement("button");
