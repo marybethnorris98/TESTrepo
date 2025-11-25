@@ -893,7 +893,7 @@ if (editingDraftId) {
           deleteBtn.style = "background:transparent;color:#b20050;border:2px solid #ffd1e8;padding:6px 10px;border-radius:8px;cursor:pointer;";
           deleteBtn.addEventListener("click", async () => {
             if (!confirm(`Delete draft "${d.title}"?`)) return;
-            await fetch(`/drafts/${d.id}`, { method: "DELETE" });
+            await deleteDraftFromFirebase(d.id);
             openDraftsModal();
           });
 
