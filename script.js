@@ -377,8 +377,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 2. Apply matching/contrasting styles for correct appearance and spacing
     Object.assign(saveDraftBtn.style, {
-        background: "#ffb6dd", // Lighter pink for Draft (as in your old code)
-        color: "#6a003a",
+        background: "#ff3ebf", // Lighter pink for Draft (as in your old code)
+        color: "#white",
         border: "none",
         padding: "14px 18px",
         fontSize: "18px",
@@ -387,8 +387,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         width: "100%",
         cursor: "pointer",
         marginBottom: "15px", // Spacing before the main save button
-        marginTop: "0",
-        fontWeight: "bold",
+        marginTop: "15 px",
     });
 
     // 3. Big X close button (Keep this logic as it was correct)
