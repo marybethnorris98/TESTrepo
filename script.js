@@ -1080,3 +1080,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     });
 }
+
+}
