@@ -504,8 +504,6 @@ previewImageTag = document.getElementById("previewImageTag");
     if (addRecipeModal) {
         addRecipeModal.addEventListener("click", e => {
             if (e.target === addRecipeModal) {
-                // NOTE: Using native confirm as a placeholder for a custom UI modal
-                if (confirm("Discard unsaved changes and close?")) {
                     clearAddModal();
                     addRecipeModal.classList.add("hidden");
                     document.body.classList.remove('modal-open');
@@ -699,7 +697,12 @@ previewImageTag = document.getElementById("previewImageTag");
         newCredits.value = "";
         if (imageUpload) imageUpload.value = "";
     if (newImageURL) newImageURL.value = "";
-    if (previewImageTag) previewImageTag.src = "";
+    const LOCAL_PLACEHOLDER_PATH = "images/placeholder.jpg"; 
+
+        if (previewImageTag) {
+            previewImageTag.src = LOCAL_PLACEHOLDER_PATH;
+            previewImageTag.classList.remove('is-placeholder'); 
+        }
         
     const previewDiv = document.getElementById('imagePreview');
     if (previewDiv) previewDiv.style.display = 'none';
