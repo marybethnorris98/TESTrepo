@@ -116,9 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             newCreditsTooltip.classList.add("hidden-tooltip");
         });
     }
-    // ---------------------------------------------------
-    
-
+    const PLACEHOLDER_URL = "images/default-placeholder.png";
     addRecipeModal = document.getElementById("addRecipeModal");
     newTitle = document.getElementById("newTitle");
     newCategory = document.getElementById("newCategory");
