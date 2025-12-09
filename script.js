@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             newCreditsTooltip.classList.add("hidden-tooltip");
         });
     }
-    const PLACEHOLDER_URL = "default-placeholder.png";
+    
     addRecipeModal = document.getElementById("addRecipeModal");
     newTitle = document.getElementById("newTitle");
     newCategory = document.getElementById("newCategory");
@@ -697,7 +697,7 @@ previewImageTag = document.getElementById("previewImageTag");
         newCredits.value = "";
         if (imageUpload) imageUpload.value = "";
     if (newImageURL) newImageURL.value = "";
-    const LOCAL_PLACEHOLDER_PATH = "images/placeholder.jpg"; 
+    const LOCAL_PLACEHOLDER_PATH = "images/placeholders.jpg"; 
 
         if (previewImageTag) {
             previewImageTag.src = LOCAL_PLACEHOLDER_PATH;
