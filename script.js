@@ -91,6 +91,7 @@ let newCredits;
 let viewer, closeBtn;
 let loginModal, loginBtn, loginError;
 let draftsModal, draftsList, closeDraftsBtn;
+let featuredBtn;
 
 let imageUpload, newImageURL, imageUploadLabel, previewImageTag;
 
@@ -98,6 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // --- DOM ELEMENT Assignments ---
     recipeGrid = document.getElementById("recipeGrid");
     searchInput = document.getElementById("searchInput");
+    featuredBtn = document.getElementById("featuredBtn");
     categoryFilter = document.getElementById("categoryFilter");
 // --- Tooltip Event Listener for newCredits field ---
     const newCreditsInfoIcon = document.getElementById("newCreditsInfoIcon");
@@ -316,6 +318,8 @@ previewImageTag = document.getElementById("previewImageTag");
         recipes.forEach(recipe => {
             if (!isAdmin && recipe.hidden) return;
 
+            if (showFeaturedOnly && !recipe.featured) return;
+
             if (selectedCategory !== "all" && recipe.category !== selectedCategory) return;
             if (!recipe.title.toLowerCase().includes(searchTerm) &&
                 !recipe.description.toLowerCase().includes(searchTerm)) return;
@@ -518,6 +522,14 @@ previewImageTag = document.getElementById("previewImageTag");
     }
     searchInput?.addEventListener("input", renderRecipes);
     categoryFilter?.addEventListener("change", renderRecipes);
+    featuredBtn?.addEventListener("click", () => {
+    showFeaturedOnly = !showFeaturedOnly;
+
+    featuredBtn.style.background = showFeaturedOnly ? "#ff3ebf" : "white";
+    featuredBtn.style.color = showFeaturedOnly ? "white" : "#ff3ebf";
+
+    renderRecipes();
+});
 
     const ADMIN_PASSWORD_HASH = "pinkrecipes".split("").reverse().join("");
     function openLoginModal() { loginModal?.classList.remove("hidden"); loginError.style.display = "none"; }
