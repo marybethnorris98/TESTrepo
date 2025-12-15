@@ -402,9 +402,6 @@ previewImageTag = document.getElementById("previewImageTag");
             recipeGrid.appendChild(card);
         });
     }
-    
-const recipeTitle = document.getElementById("featuredTitle");
-const recipeGrid = document.getElementById("recipeGrid");
 
 // Example recipe data (replace with your actual array)
 const recipes = [
