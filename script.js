@@ -96,7 +96,6 @@ let featuredBtn;
 let imageUpload, newImageURL, imageUploadLabel, previewImageTag;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // --- DOM ELEMENT Assignments ---
     recipeGrid = document.getElementById("recipeGrid");
     searchInput = document.getElementById("searchInput");
     featuredBtn = document.getElementById("featuredBtn");
@@ -104,6 +103,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- Tooltip Event Listener for newCredits field ---
     const newCreditsInfoIcon = document.getElementById("newCreditsInfoIcon");
     const newCreditsTooltip = document.getElementById("newCreditsTooltip");
+    const recipeTitle = document.getElementById("featuredTitle");
+
+featuredBtn?.addEventListener("click", () => {
+    // Show the title above the grid
+    recipeTitle.textContent = featuredBtn.textContent || "Cookie Box 2025";
+    recipeTitle.classList.remove("hidden");
+});
+
+// Optional: if you have an "All Recipes" button to switch back
+const allBtn = document.getElementById("allBtn");
+allBtn?.addEventListener("click", () => {
+    recipeTitle.classList.add("hidden");
+});
 
     if (newCreditsInfoIcon && newCreditsTooltip) {
         // Toggle visibility on click
