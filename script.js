@@ -116,7 +116,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             newCreditsTooltip.classList.add("hidden-tooltip");
         });
     }
+    // ---------------------------------------------------
     
+
     addRecipeModal = document.getElementById("addRecipeModal");
     newTitle = document.getElementById("newTitle");
     newCategory = document.getElementById("newCategory");
@@ -504,6 +506,8 @@ previewImageTag = document.getElementById("previewImageTag");
     if (addRecipeModal) {
         addRecipeModal.addEventListener("click", e => {
             if (e.target === addRecipeModal) {
+                // NOTE: Using native confirm as a placeholder for a custom UI modal
+                if (confirm("Discard unsaved changes and close?")) {
                     clearAddModal();
                     addRecipeModal.classList.add("hidden");
                     document.body.classList.remove('modal-open');
@@ -697,12 +701,7 @@ previewImageTag = document.getElementById("previewImageTag");
         newCredits.value = "";
         if (imageUpload) imageUpload.value = "";
     if (newImageURL) newImageURL.value = "";
-    const LOCAL_PLACEHOLDER_PATH = "images/placeholders.jpg"; 
-
-        if (previewImageTag) {
-            previewImageTag.src = LOCAL_PLACEHOLDER_PATH;
-            previewImageTag.classList.remove('is-placeholder'); 
-        }
+    if (previewImageTag) previewImageTag.src = "";
         
     const previewDiv = document.getElementById('imagePreview');
     if (previewDiv) previewDiv.style.display = 'none';
