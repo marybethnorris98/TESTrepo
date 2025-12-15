@@ -402,6 +402,7 @@ previewImageTag = document.getElementById("previewImageTag");
         const modalEditBtn = document.getElementById("modalEditBtn");
         const modalDeleteBtn = document.getElementById("modalDeleteBtn");
         const hideBtn = document.getElementById("modalHideBtn");
+        const featureBtn = document.getElementById("modalFeatureBtn");
 
         editingRecipeId = recipe.id;
 
@@ -441,7 +442,7 @@ previewImageTag = document.getElementById("previewImageTag");
     border: "none",
 });
 
-            const featureBtn = document.getElementById("modalFeatureBtn");
+            
 
 if (featureBtn) {
     featureBtn.style.display = "inline-block";
@@ -462,8 +463,6 @@ if (featureBtn) {
     color: "white",
     border: "none",
     });
-
-       const featuredBtn = document.getElementById("featuredBtn"); // your button ID
 
 // Function to toggle featured
 function toggleFeatured(showFeaturedOnly) {
