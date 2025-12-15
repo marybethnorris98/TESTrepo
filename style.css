@@ -506,25 +506,6 @@ body.modal-open {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-/* Sparkles */
-.feature-btn::before,
-.feature-btn::after {
-  content: "✨";
-  position: absolute;
-  font-size: 18px;
-  color: white;
-  opacity: 0;
-  animation: sparkle 1.2s infinite;
-}
-
-.feature-btn::before { top: 10%; left: 15%; animation-delay: 0s; }
-.feature-btn::after { bottom: 10%; right: 20%; animation-delay: 0.6s; }
-
-@keyframes sparkle {
-  0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(20deg); }
-}
-
 /* Active / toggled state */
 .feature-btn.active {
   background: #ff3ebf;
