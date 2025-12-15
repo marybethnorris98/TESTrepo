@@ -856,6 +856,7 @@ async function saveRecipe() {
         ingredients,
         instructions,
         hidden: false, 
+        featured: false,
     };
 
     try {
