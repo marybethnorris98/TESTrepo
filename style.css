@@ -444,6 +444,13 @@ body > .tooltip-container {
     color: #a00064; /* mauvePink text */
     border-color: #ff3ebf; /* primaryPink border */
 }
+
+.modalFeatureBtn {
+    background: white;
+    color: #a00064; /* mauvePink text */
+    border-color: #ff3ebf; /* primaryPink border */
+}
+
 #imageUploadContainer {
     max-width: 250px; /* Limits the width of the upload area */
     margin: 8px auto 15px auto; /* Centers it and adds bottom margin */
