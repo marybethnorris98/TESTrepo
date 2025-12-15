@@ -390,6 +390,52 @@ previewImageTag = document.getElementById("previewImageTag");
             recipeGrid.appendChild(card);
         });
     }
+    
+const featuredBtn = document.getElementById("featuredBtn"); // your Featured button
+const allBtn = document.getElementById("allBtn");           // your All button
+const recipeTitle = document.getElementById("featuredTitle");
+const recipeGrid = document.getElementById("recipeGrid");
+
+// Example recipe data (replace with your actual array)
+const recipes = [
+  { title: "Pancakes", featured: true },
+  { title: "Salad", featured: false },
+  { title: "Cookies", featured: true },
+];
+
+// Function to render recipes
+function displayRecipes(list) {
+  recipeGrid.innerHTML = "";
+  list.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<div class="card-title">${r.title}</div>`;
+    recipeGrid.appendChild(card);
+  });
+}
+
+// Featured button click
+featuredBtn.addEventListener("click", () => {
+  featuredBtn.classList.add("active");
+  recipeTitle.textContent = featuredBtn.textContent || "Cookie Box 2025"; // dynamic title
+  recipeTitle.classList.remove("hidden"); // show the title
+  const featuredRecipes = recipes.filter(r => r.featured);
+  displayRecipes(featuredRecipes);
+});
+
+// All button click
+if (allBtn) {
+  allBtn.addEventListener("click", () => {
+    featuredBtn.classList.remove("active");
+    recipeTitle.classList.add("hidden"); // hide the title
+    displayRecipes(recipes);
+  });
+}
+
+// Initial load
+displayRecipes(recipes);
+recipeTitle.classList.add("hidden");
+    
     function openRecipeModal(recipe) {
         if (!recipe || !viewer) return;
 
