@@ -525,16 +525,3 @@ body.modal-open {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(255, 50, 150, 0.45);
 }
-
-.hidden {
-  display: none;
-}
-
-#featuredTitle {
-  font-family: "Playfair Display", serif; /* match .card-title */
-  font-size: 24px;                        /* match .card-title */
-  font-weight: 600;                        /* match .card-title */
-  color: #FF0AB4;                          /* match .card-title */
-  text-align: center;                       /* center above the grid */
-  margin: 20px 0;                           /* spacing above and below */
-}
