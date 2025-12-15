@@ -546,3 +546,17 @@ body.modal-open {
   transition: background 0.2s;      /* smooth hover effect */
   margin-top: 15px;
 }
+
+.FeatureBtn {
+ background-color: #ffd6ee;       /* pink background matching Delete button */
+  color: #a00064;                  /* text color */
+  font-family: 'Poppins', sans-serif; /* font matching your site */
+  font-weight: 600;                /* bold enough */
+  font-size: 14px;                 /* adjust size */
+  padding: 6px 12px;               /* spacing inside the button */
+  border: 2px solid #ffb1db;       /* border to match style */
+  border-radius: 8px;               /* rounded corners */
+  cursor: pointer;
+  transition: background 0.2s;      /* smooth hover effect */
+  margin-top: 15px;
+}
