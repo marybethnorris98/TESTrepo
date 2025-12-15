@@ -453,6 +453,7 @@ if (featureBtn) {
         });
         await loadRecipes();
         viewer.style.display = "none";
+        document.body.classList.remove('modal-open');
     };
 }
             modalDeleteBtn.style.display = "inline-block";
