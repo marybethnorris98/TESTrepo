@@ -80,6 +80,7 @@ const defaultRecipes = [
 const CATEGORIES = ["Breakfast", "Meals", "Snacks", "Sides", "Dessert", "Drinks"];
 
 let recipes = [];
+let showFeaturedOnly = false;
 let drafts = [];
 let editingDraftId = null; // ID of the draft being edited/loaded
 let editingRecipeId = null; // ID of the recipe being edited/loaded
