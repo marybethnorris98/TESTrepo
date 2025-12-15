@@ -440,6 +440,21 @@ previewImageTag = document.getElementById("previewImageTag");
     color: "white",
     border: "none",
 });
+
+            const featureBtn = document.getElementById("modalFeatureBtn");
+
+if (featureBtn) {
+    featureBtn.style.display = "inline-block";
+    featureBtn.textContent = recipe.featured ? "Unfeature" : "⭐ Feature";
+
+    featureBtn.onclick = async () => {
+        await updateDoc(doc(db, "recipes", recipe.id), {
+            featured: !recipe.featured
+        });
+        await loadRecipes();
+        viewer.style.display = "none";
+    };
+}
             modalDeleteBtn.style.display = "inline-block";
             Object.assign(modalDeleteBtn.style, {
     backgroundColor: "#ff3ebf", // Mauve Pink
