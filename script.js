@@ -403,8 +403,6 @@ previewImageTag = document.getElementById("previewImageTag");
         });
     }
     
-const featuredBtn = document.getElementById("featuredBtn"); // your Featured button
-const allBtn = document.getElementById("allBtn");           // your All button
 const recipeTitle = document.getElementById("featuredTitle");
 const recipeGrid = document.getElementById("recipeGrid");
 
