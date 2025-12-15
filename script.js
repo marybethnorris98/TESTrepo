@@ -315,6 +315,21 @@ previewImageTag = document.getElementById("previewImageTag");
 
         recipeGrid.innerHTML = "";
 
+        if (showFeaturedOnly) {
+        const title = document.createElement("h2");
+        title.textContent = "Cookie Box 2025";
+        title.style.cssText = `
+            grid-column: 1 / -1;
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: #FF0AB4;
+            text-align: center;
+            margin: 20px 0;
+        `;
+        recipeGrid.appendChild(title);
+    }
+
         recipes.forEach(recipe => {
             if (!isAdmin && recipe.hidden) return;
 
@@ -561,6 +576,13 @@ featuredBtn.addEventListener("click", () => {
     categoryFilter?.addEventListener("change", renderRecipes);
     featuredBtn?.addEventListener("click", () => {
     showFeaturedOnly = !showFeaturedOnly;
+        showFeaturedOnly = !showFeaturedOnly;
+
+    if (showFeaturedOnly) {
+        featuredBtn.classList.add("active");
+    } else {
+        featuredBtn.classList.remove("active");
+    }
 
     renderRecipes();
 });
