@@ -462,7 +462,24 @@ if (featureBtn) {
     color: "white",
     border: "none",
     });
-                
+
+       const featuredBtn = document.getElementById("featuredBtn"); // your button ID
+
+// Function to toggle featured
+function toggleFeatured(showFeaturedOnly) {
+  if(showFeaturedOnly) {
+    featuredBtn.classList.add("active");
+  } else {
+    featuredBtn.classList.remove("active");
+  }
+}
+
+// Example usage: toggle when button is clicked
+featuredBtn.addEventListener("click", () => {
+  const isActive = featuredBtn.classList.contains("active");
+  toggleFeatured(!isActive);
+});
+     
             modalEditBtn.onclick = () => {
                 editingRecipeId = recipe.id;
                 editingDraftId = null;
