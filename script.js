@@ -96,6 +96,7 @@ let featuredBtn;
 let imageUpload, newImageURL, imageUploadLabel, previewImageTag;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // --- DOM ELEMENT Assignments ---
     recipeGrid = document.getElementById("recipeGrid");
     searchInput = document.getElementById("searchInput");
     featuredBtn = document.getElementById("featuredBtn");
@@ -103,19 +104,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- Tooltip Event Listener for newCredits field ---
     const newCreditsInfoIcon = document.getElementById("newCreditsInfoIcon");
     const newCreditsTooltip = document.getElementById("newCreditsTooltip");
-    const recipeTitle = document.getElementById("featuredTitle");
-
-featuredBtn?.addEventListener("click", () => {
-    // Show the title above the grid
-    recipeTitle.textContent = featuredBtn.textContent || "Cookie Box 2025";
-    recipeTitle.classList.remove("hidden");
-});
-
-// Optional: if you have an "All Recipes" button to switch back
-const allBtn = document.getElementById("allBtn");
-allBtn?.addEventListener("click", () => {
-    recipeTitle.classList.add("hidden");
-});
 
     if (newCreditsInfoIcon && newCreditsTooltip) {
         // Toggle visibility on click
@@ -402,47 +390,6 @@ previewImageTag = document.getElementById("previewImageTag");
             recipeGrid.appendChild(card);
         });
     }
-
-// Example recipe data (replace with your actual array)
-const recipes = [
-  { title: "Pancakes", featured: true },
-  { title: "Salad", featured: false },
-  { title: "Cookies", featured: true },
-];
-
-// Function to render recipes
-function displayRecipes(list) {
-  recipeGrid.innerHTML = "";
-  list.forEach(r => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<div class="card-title">${r.title}</div>`;
-    recipeGrid.appendChild(card);
-  });
-}
-
-// Featured button click
-featuredBtn.addEventListener("click", () => {
-  featuredBtn.classList.add("active");
-  recipeTitle.textContent = featuredBtn.textContent || "Cookie Box 2025"; // dynamic title
-  recipeTitle.classList.remove("hidden"); // show the title
-  const featuredRecipes = recipes.filter(r => r.featured);
-  displayRecipes(featuredRecipes);
-});
-
-// All button click
-if (allBtn) {
-  allBtn.addEventListener("click", () => {
-    featuredBtn.classList.remove("active");
-    recipeTitle.classList.add("hidden"); // hide the title
-    displayRecipes(recipes);
-  });
-}
-
-// Initial load
-displayRecipes(recipes);
-recipeTitle.classList.add("hidden");
-    
     function openRecipeModal(recipe) {
         if (!recipe || !viewer) return;
 
