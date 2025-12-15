@@ -447,6 +447,11 @@ previewImageTag = document.getElementById("previewImageTag");
 if (featureBtn) {
     featureBtn.style.display = "inline-block";
     featureBtn.textContent = recipe.featured ? "Unfeature" : "⭐ Feature";
+     Object.assign(featureBtn.style, {
+        backgroundColor: recipe.featured ? "white" : "#ff3ebf",
+        color: recipe.featured ? "#ff3ebf" : "white",
+        border: recipe.featured ? "2px solid #ff3ebf" : "none",
+    });
 
     featureBtn.onclick = async () => {
         await updateDoc(doc(db, "recipes", recipe.id), {
