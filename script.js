@@ -558,9 +558,6 @@ featuredBtn.addEventListener("click", () => {
     featuredBtn?.addEventListener("click", () => {
     showFeaturedOnly = !showFeaturedOnly;
 
-    featuredBtn.style.background = showFeaturedOnly ? "#ff3ebf" : "white";
-    featuredBtn.style.color = showFeaturedOnly ? "white" : "#ff3ebf";
-
     renderRecipes();
 });
 
