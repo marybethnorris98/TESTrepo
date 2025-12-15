@@ -458,11 +458,12 @@ previewImageTag = document.getElementById("previewImageTag");
 });
 
             
-
 if (featureBtn) {
     featureBtn.style.display = "inline-block";
     featureBtn.textContent = recipe.featured ? "Unfeature" : "⭐ Feature";
-     Object.assign(featureBtn.style, {
+    
+    // Style the feature button to match other modal buttons
+    Object.assign(featureBtn.style, {
         backgroundColor: recipe.featured ? "white" : "#ff3ebf",
         color: recipe.featured ? "#ff3ebf" : "white",
         border: recipe.featured ? "2px solid #ff3ebf" : "none",
@@ -477,6 +478,7 @@ if (featureBtn) {
         document.body.classList.remove('modal-open');
     };
 }
+
             modalDeleteBtn.style.display = "inline-block";
             Object.assign(modalDeleteBtn.style, {
     backgroundColor: "#ff3ebf", // Mauve Pink
