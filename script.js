@@ -1065,10 +1065,18 @@ if (!indexBtn) {
             const snapshot = await getDocs(q);
 
             snapshot.forEach(doc => {
-                const li = document.createElement("li");
-                li.textContent = doc.data().title || "(Untitled Recipe)";
-                indexList.appendChild(li);
-            });
+    const li = document.createElement("li");
+    li.textContent = doc.data().title || "(Untitled Recipe)";
+    li.style.cursor = "pointer"; // show pointer on hover
+
+    // When clicked, close the index modal and open the recipe modal
+    li.onclick = () => {
+        indexModal.classList.add("hidden");  // close index modal
+        openRecipeModal(doc.id);             // your existing function
+    };
+
+    indexList.appendChild(li);
+});
 
         } catch (error) {
             console.error("Error loading recipe index:", error);
