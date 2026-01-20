@@ -95,6 +95,92 @@ let featuredBtn;
 
 let imageUpload, newImageURL, imageUploadLabel, previewImageTag;
 
+let viewer, closeBtn; // declared above in your DOMContentLoaded listener
+
+async function openRecipeModal(recipeOrId) {
+    if (!viewer) return;
+
+    let recipe;
+
+    if (typeof recipeOrId === "string") {
+        try {
+            const docRef = doc(db, "recipes", recipeOrId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                console.error("Recipe not found for ID:", recipeOrId);
+                return;
+            }
+
+            recipe = docSnap.data();
+            recipe.id = docSnap.id;
+        } catch (error) {
+            console.error("Error fetching recipe:", error);
+            return;
+        }
+    } else {
+        recipe = recipeOrId;
+    }
+
+    if (!recipe) return;
+
+    const modalImg = document.getElementById("modalImage");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalCategory = document.getElementById("modalCategory");
+    const modalDesc = document.getElementById("modalDescription");
+    const modalIngredients = document.getElementById("modalIngredients");
+    const modalInstructions = document.getElementById("modalInstructions");
+    const modalEditBtn = document.getElementById("modalEditBtn");
+    const modalDeleteBtn = document.getElementById("modalDeleteBtn");
+    const hideBtn = document.getElementById("modalHideBtn");
+    const featureBtn = document.getElementById("modalFeatureBtn");
+
+    // --- populate fields ---
+    if (modalImg) modalImg.src = recipe.image || "";
+    if (modalTitle) modalTitle.textContent = recipe.title || "";
+    if (modalCategory) modalCategory.textContent = recipe.category || "";
+    if (modalDesc) modalDesc.textContent = recipe.description || "";
+
+    if (modalIngredients) {
+        modalIngredients.innerHTML = "";
+        (recipe.ingredients || []).forEach(i => {
+            const li = document.createElement("li");
+            li.textContent = i;
+            modalIngredients.appendChild(li);
+        });
+        modalIngredients.classList.add("scrollable-list");
+    }
+
+    if (modalInstructions) {
+        modalInstructions.innerHTML = "";
+        (recipe.instructions || []).forEach(i => {
+            const li = document.createElement("li");
+            li.textContent = i;
+            modalInstructions.appendChild(li);
+        });
+        modalInstructions.classList.add("scrollable-list");
+    }
+
+    // --- admin buttons code here (optional) ---
+
+    viewer.style.display = "flex";
+    document.body.classList.add("modal-open");
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            viewer.style.display = "none";
+            document.body.classList.remove("modal-open");
+        });
+
+        viewer.addEventListener("click", e => {
+            if (e.target === viewer) {
+                viewer.style.display = "none";
+                document.body.classList.remove("modal-open");
+            }
+        });
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     // --- DOM ELEMENT Assignments ---
     recipeGrid = document.getElementById("recipeGrid");
@@ -119,9 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             newCreditsTooltip.classList.add("hidden-tooltip");
         });
     }
-    // ---------------------------------------------------
     
-
     addRecipeModal = document.getElementById("addRecipeModal");
     newTitle = document.getElementById("newTitle");
     newCategory = document.getElementById("newCategory");
@@ -165,7 +249,6 @@ previewImageTag = document.getElementById("previewImageTag");
     }
 });
 
-    // DRAFTS MODAL Elements must be created if they don't exist in HTML
     draftsModal = document.getElementById("draftsModal");
     if (!draftsModal) {
         draftsModal = document.createElement("div");
@@ -182,7 +265,6 @@ previewImageTag = document.getElementById("previewImageTag");
     }
     draftsList = document.getElementById("draftsList");
 
-    // --- Apply Styles ---
     if (saveRecipeBtn) {
         Object.assign(saveRecipeBtn.style, {
             background: primaryPink,
@@ -217,7 +299,6 @@ previewImageTag = document.getElementById("previewImageTag");
         });
     }
 
-    // APPLY POPPINS TO ADD RECIPE MODAL INPUTS
     const inputStyle = {
         fontFamily: "Poppins, sans-serif",
         borderRadius: "8px",
@@ -353,8 +434,6 @@ previewImageTag = document.getElementById("previewImageTag");
             card.appendChild(img);
             card.appendChild(content);
 
-           // --- START REPLACEMENT CODE ---
-
             // Create a single container for the icon and tooltip
             const tooltipContainer = document.createElement("div");
             tooltipContainer.className = "tooltip-container"; 
@@ -376,7 +455,6 @@ previewImageTag = document.getElementById("previewImageTag");
             });
             document.addEventListener("click", () => tooltip.classList.remove("visible"));
             
-            // Append icon and tooltip to the new container
             tooltipContainer.appendChild(infoIcon);
             tooltipContainer.appendChild(tooltip);
             
@@ -390,186 +468,6 @@ previewImageTag = document.getElementById("previewImageTag");
             recipeGrid.appendChild(card);
         });
     }
-
-    async function openRecipeModal(recipeOrId) {
-    if (!viewer) return;
-
-    let recipe;
-
-    // --- 1️⃣ If passed a string, treat it as an ID and fetch from Firestore
-    if (typeof recipeOrId === "string") {
-        try {
-            const docRef = doc(db, "recipes", recipeOrId);
-            const docSnap = await getDoc(docRef);
-
-            if (!docSnap.exists()) {
-                console.error("Recipe not found for ID:", recipeOrId);
-                return;
-            }
-
-            recipe = docSnap.data();
-            recipe.id = docSnap.id; // so your modal code works
-        } catch (error) {
-            console.error("Error fetching recipe:", error);
-            return;
-        }
-    } else {
-        // --- 2️⃣ Otherwise assume it's a full recipe object
-        recipe = recipeOrId;
-    }
-
-    if (!recipe) return;
-
-    // --- 3️⃣ Modal Elements ---
-    const modalImg = document.getElementById("modalImage");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalCategory = document.getElementById("modalCategory");
-    const modalDesc = document.getElementById("modalDescription");
-    const modalIngredients = document.getElementById("modalIngredients");
-    const modalInstructions = document.getElementById("modalInstructions");
-    const modalEditBtn = document.getElementById("modalEditBtn");
-    const modalDeleteBtn = document.getElementById("modalDeleteBtn");
-    const hideBtn = document.getElementById("modalHideBtn");
-    const featureBtn = document.getElementById("modalFeatureBtn");
-
-    editingRecipeId = recipe.id;
-
-    // --- 4️⃣ Populate modal fields ---
-    if (modalImg) {
-        modalImg.src = recipe.image || "";
-        modalImg.alt = recipe.title || "";
-    }
-    if (modalTitle) modalTitle.textContent = recipe.title || "";
-    if (modalCategory) modalCategory.textContent = recipe.category || "";
-    if (modalDesc) modalDesc.textContent = recipe.description || "";
-
-    if (modalIngredients) {
-        modalIngredients.innerHTML = "";
-        (recipe.ingredients || []).forEach(i => {
-            const li = document.createElement("li");
-            li.textContent = i;
-            modalIngredients.appendChild(li);
-        });
-        modalIngredients.classList.add("scrollable-list");
-    }
-
-    if (modalInstructions) {
-        modalInstructions.innerHTML = "";
-        (recipe.instructions || []).forEach(s => {
-            const li = document.createElement("li");
-            li.textContent = s;
-            modalInstructions.appendChild(li);
-        });
-        modalInstructions.classList.add("scrollable-list");
-    }
-
-    // --- 5️⃣ Admin Buttons ---
-    if (isAdmin) {
-        // Edit button
-        if (modalEditBtn) {
-            modalEditBtn.style.display = "inline-block";
-            Object.assign(modalEditBtn.style, {
-                backgroundColor: "#ff3ebf",
-                color: "white",
-                border: "none",
-            });
-            modalEditBtn.onclick = () => {
-                editingRecipeId = recipe.id;
-                editingDraftId = null;
-                populateAddModalFromRecipeOrDraft(recipe);
-                ensureAddModalControls();
-                addRecipeModal.classList.remove("hidden");
-                viewer.style.display = "none";
-            };
-        }
-
-        // Delete button
-        if (modalDeleteBtn) {
-            modalDeleteBtn.style.display = "inline-block";
-            Object.assign(modalDeleteBtn.style, {
-                backgroundColor: "#ff3ebf",
-                color: "white",
-                border: "none",
-            });
-            modalDeleteBtn.onclick = async () => {
-                if (!confirm(`Delete "${recipe.title}"?`)) return;
-                if (db) {
-                    await deleteDoc(doc(db, "recipes", recipe.id));
-                    await loadRecipes();
-                } else {
-                    console.error("Database not initialized.");
-                }
-                viewer.style.display = "none";
-                document.body.classList.remove('modal-open');
-            };
-        }
-
-        // Hide button
-        if (hideBtn) {
-            hideBtn.style.display = "inline-block";
-            hideBtn.textContent = recipe.hidden ? "Unhide" : "Hide";
-            Object.assign(hideBtn.style, {
-                backgroundColor: "white",
-                color: "#ff3ebf",
-                border: "2px solid #ff3ebf",
-            });
-            hideBtn.onclick = async e => {
-                e.stopPropagation();
-                if (db) {
-                    await updateDoc(doc(db, "recipes", recipe.id), { hidden: !recipe.hidden });
-                    await loadRecipes();
-                }
-                viewer.style.display = "none";
-                document.body.classList.remove('modal-open');
-            };
-        }
-
-        // Feature button
-        if (featureBtn) {
-            featureBtn.style.display = "inline-block";
-            featureBtn.textContent = recipe.featured ? "Unfeature" : "⭐ Feature";
-            Object.assign(featureBtn.style, {
-                backgroundColor: recipe.featured ? "white" : "#ff3ebf",
-                color: recipe.featured ? "#ff3ebf" : "white",
-                border: recipe.featured ? "2px solid #ff3ebf" : "none",
-            });
-
-            featureBtn.onclick = async () => {
-                await updateDoc(doc(db, "recipes", recipe.id), { featured: !recipe.featured });
-                await loadRecipes();
-                viewer.style.display = "none";
-                document.body.classList.remove('modal-open');
-            };
-        }
-    } else {
-        if (modalEditBtn) modalEditBtn.style.display = "none";
-        if (modalDeleteBtn) modalDeleteBtn.style.display = "none";
-        if (hideBtn) hideBtn.style.display = "none";
-        if (featureBtn) featureBtn.style.display = "none";
-    }
-
-    // --- 6️⃣ Show modal ---
-    viewer.style.display = "flex";
-    document.body.classList.add('modal-open');
-
-    // --- 7️⃣ Close modal ---
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => { 
-            viewer.style.display = "none"; 
-            document.body.classList.remove('modal-open');
-        });
-
-        viewer.addEventListener("click", e => {
-            if (e.target === viewer) {
-                viewer.style.display = "none";
-                document.body.classList.remove('modal-open');
-            }
-        });
-    }
-}
-
-
-            
 
 if (featureBtn) {
     featureBtn.style.display = "inline-block";
