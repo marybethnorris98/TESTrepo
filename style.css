@@ -592,3 +592,8 @@ body.modal-open {
   font-size: 22px;
   cursor: pointer;
 }
+
+#indexList li:hover {
+    text-decoration: underline;
+    color: #ffd6ee; 
+}
