@@ -1046,7 +1046,23 @@ if (!indexBtn) {
     console.error("Index button not found");
 } else {
     indexBtn.addEventListener("click", () => {
-        alert("Recipe Index button works!");
+       const indexModal = document.getElementById("indexModal");
+const closeIndexBtn = document.getElementById("closeIndexBtn");
+
+indexBtn.addEventListener("click", () => {
+    indexModal.classList.remove("hidden");
+});
+
+closeIndexBtn.addEventListener("click", () => {
+    indexModal.classList.add("hidden");
+});
+
+indexModal.addEventListener("click", (e) => {
+    if (e.target === indexModal) {
+        indexModal.classList.add("hidden");
+    }
+});
+ 
     });
 }
 
