@@ -963,7 +963,6 @@ async function openDraftsModal() {
         modalContent.appendChild(x);
     }
     
-    // --- RENDER DRAFTS LIST ---
     if (drafts.length === 0) {
         draftsList.innerHTML = `<p style="font-family: Poppins, sans-serif; text-align: center; color: #777;">You have no saved drafts.</p>`;
     } else {
@@ -1041,6 +1040,14 @@ if (db) {
     await loadRecipes();
     await loadDrafts(); 
 }
+const indexBtn = document.getElementById("indexBtn");
 
+if (!indexBtn) {
+    console.error("Index button not found");
+} else {
+    indexBtn.addEventListener("click", () => {
+        alert("Recipe Index button works!");
+    });
+}
 
 });
