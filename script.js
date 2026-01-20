@@ -1045,25 +1045,54 @@ const indexBtn = document.getElementById("indexBtn");
 if (!indexBtn) {
     console.error("Index button not found");
 } else {
-    indexBtn.addEventListener("click", () => {
-       const indexModal = document.getElementById("indexModal");
-const closeIndexBtn = document.getElementById("closeIndexBtn");
+    const indexModal = document.getElementById("indexModal");
+    const closeIndexBtn = document.getElementById("closeIndexBtn");
+    const indexList = document.getElementById("indexList");
+    let indexLoaded = false;
 
-indexBtn.addEventListener("click", () => {
-    indexModal.classList.remove("hidden");
-});
+    async function loadRecipeIndex() {
+        if (indexLoaded) return;
+        indexLoaded = true;
 
-closeIndexBtn.addEventListener("click", () => {
-    indexModal.classList.add("hidden");
-});
+        indexList.innerHTML = "";
 
-indexModal.addEventListener("click", (e) => {
-    if (e.target === indexModal) {
-        indexModal.classList.add("hidden");
+        try {
+            const q = query(
+                collection(db, "recipes"),
+                orderBy("title")
+            );
+
+            const snapshot = await getDocs(q);
+
+            snapshot.forEach(doc => {
+                const li = document.createElement("li");
+                li.textContent = doc.data().title || "(Untitled Recipe)";
+                indexList.appendChild(li);
+            });
+
+        } catch (error) {
+            console.error("Error loading recipe index:", error);
+            indexList.innerHTML = "<li>Failed to load recipes.</li>";
+        }
     }
-});
- 
+
+    // Button opens modal and loads recipes
+    indexBtn.addEventListener("click", async () => {
+        indexModal.classList.remove("hidden");
+        await loadRecipeIndex();
+    });
+
+    // Close modal on X
+    closeIndexBtn.addEventListener("click", () => {
+        indexModal.classList.add("hidden");
+    });
+
+    // Close modal on clicking outside
+    indexModal.addEventListener("click", (e) => {
+        if (e.target === indexModal) {
+            indexModal.classList.add("hidden");
+        }
     });
 }
-
+    
 });
