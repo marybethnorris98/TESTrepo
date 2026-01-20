@@ -1065,6 +1065,8 @@ if (!indexBtn) {
             const snapshot = await getDocs(q);
 
             snapshot.forEach(doc => {
+    console.log("Loaded recipe ID:", doc.id, "title:", doc.data().title);
+                
     const li = document.createElement("li");
     li.textContent = doc.data().title || "(Untitled Recipe)";
     li.style.cursor = "pointer"; // show pointer on hover
