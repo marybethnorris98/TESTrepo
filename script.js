@@ -391,6 +391,7 @@ previewImageTag = document.getElementById("previewImageTag");
         });
     }
     function openRecipeModal(recipe) {
+        const viewer = document.getElementById("recipeViewer"); 
         if (!recipe || !viewer) return;
 
         const modalImg = document.getElementById("modalImage");
@@ -402,8 +403,8 @@ previewImageTag = document.getElementById("previewImageTag");
         const modalEditBtn = document.getElementById("modalEditBtn");
         const modalDeleteBtn = document.getElementById("modalDeleteBtn");
         const hideBtn = document.getElementById("modalHideBtn");
-        const featureBtn = document.getElementById("modalFeatureBtn");
-
+        const featureBtn = document.getElementById("modalFeatureBtn")
+        
         editingRecipeId = recipe.id;
 
         if (modalImg) {
@@ -440,6 +441,10 @@ previewImageTag = document.getElementById("previewImageTag");
     backgroundColor: "#ff3ebf", // Primary Pink
     color: "white",
     border: "none",
+
+viewer.style.display = "flex";
+document.body.classList.add("modal-open");
+
 });
 
             
@@ -897,21 +902,18 @@ async function saveRecipe() {
         let savedRecipeId;
 
         if (editingRecipeId) {
-            // Case 1: Updating an existing published recipe
             const docRef = doc(db, "recipes", editingRecipeId);
             await updateDoc(docRef, recipeData);
             savedRecipeId = editingRecipeId;
             console.log(`Recipe "${title}" updated! ID: ${savedRecipeId}`);
 
         } else {
-            // Case 2: Creating a new recipe
             const docRef = doc(collection(db, "recipes"));
             await setDoc(docRef, recipeData);
             savedRecipeId = docRef.id;
             console.log(`Recipe "${title}" saved! New ID: ${savedRecipeId}`);
         }
         
-        // --- DRAFT CLEANUP LOGIC ---
         if (editingDraftId) {
             // Delete the draft that was just published/used to update the recipe
             await deleteDoc(doc(db, "drafts", editingDraftId));
@@ -1071,7 +1073,7 @@ snapshot.forEach(recipeDoc => {
     li.style.cursor = "pointer";
 
     li.onclick = async () => {
-        indexModal.classList.add("hidden");  // close index modal
+        indexModal.classList.add("hidden");
 
         try {
             // Fetch the full recipe object from Firestore
