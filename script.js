@@ -97,32 +97,8 @@ let imageUpload, newImageURL, imageUploadLabel, previewImageTag;
 
 let viewer, closeBtn; // declared above in your DOMContentLoaded listener
 
-async function openRecipeModal(recipeOrId) {
-    if (!viewer) return;
-
-    let recipe;
-
-    if (typeof recipeOrId === "string") {
-        try {
-            const docRef = doc(db, "recipes", recipeOrId);
-            const docSnap = await getDoc(docRef);
-
-            if (!docSnap.exists()) {
-                console.error("Recipe not found for ID:", recipeOrId);
-                return;
-            }
-
-            recipe = docSnap.data();
-            recipe.id = docSnap.id;
-        } catch (error) {
-            console.error("Error fetching recipe:", error);
-            return;
-        }
-    } else {
-        recipe = recipeOrId;
-    }
-
-    if (!recipe) return;
+function openRecipeModal(recipe) {
+    if (!recipe || !viewer) return;
 
     const modalImg = document.getElementById("modalImage");
     const modalTitle = document.getElementById("modalTitle");
@@ -130,36 +106,30 @@ async function openRecipeModal(recipeOrId) {
     const modalDesc = document.getElementById("modalDescription");
     const modalIngredients = document.getElementById("modalIngredients");
     const modalInstructions = document.getElementById("modalInstructions");
-    const modalEditBtn = document.getElementById("modalEditBtn");
-    const modalDeleteBtn = document.getElementById("modalDeleteBtn");
-    const hideBtn = document.getElementById("modalHideBtn");
-    const featureBtn = document.getElementById("modalFeatureBtn");
 
-    // --- populate fields ---
-    if (modalImg) modalImg.src = recipe.image || "";
-    if (modalTitle) modalTitle.textContent = recipe.title || "";
-    if (modalCategory) modalCategory.textContent = recipe.category || "";
-    if (modalDesc) modalDesc.textContent = recipe.description || "";
+    modalImg.src = recipe.image || "";
+    modalImg.alt = recipe.title || "";
+    modalTitle.textContent = recipe.title || "";
+    modalCategory.textContent = recipe.category || "";
+    modalDesc.textContent = recipe.description || "";
 
-    if (modalIngredients) {
-        modalIngredients.innerHTML = "";
-        (recipe.ingredients || []).forEach(i => {
-            const li = document.createElement("li");
-            li.textContent = i;
-            modalIngredients.appendChild(li);
-        });
-        modalIngredients.classList.add("scrollable-list");
-    }
+    modalIngredients.innerHTML = "";
+    (recipe.ingredients || []).forEach(i => {
+        const li = document.createElement("li");
+        li.textContent = i;
+        modalIngredients.appendChild(li);
+    });
 
-    if (modalInstructions) {
-        modalInstructions.innerHTML = "";
-        (recipe.instructions || []).forEach(i => {
-            const li = document.createElement("li");
-            li.textContent = i;
-            modalInstructions.appendChild(li);
-        });
-        modalInstructions.classList.add("scrollable-list");
-    }
+    modalInstructions.innerHTML = "";
+    (recipe.instructions || []).forEach(i => {
+        const li = document.createElement("li");
+        li.textContent = i;
+        modalInstructions.appendChild(li);
+    });
+
+    viewer.style.display = "flex";
+    document.body.classList.add("modal-open");
+}
 
     // --- admin buttons code here (optional) ---
 
@@ -182,7 +152,6 @@ async function openRecipeModal(recipeOrId) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // --- DOM ELEMENT Assignments ---
     recipeGrid = document.getElementById("recipeGrid");
     searchInput = document.getElementById("searchInput");
     featuredBtn = document.getElementById("featuredBtn");
@@ -1076,51 +1045,36 @@ if (!indexBtn) {
     let indexLoaded = false;
 
     async function loadRecipeIndex() {
-        if (indexLoaded) return;
-        indexLoaded = true;
-
-        indexList.innerHTML = "";
-
-        try {
-            const q = query(
-                collection(db, "recipes"),
-                orderBy("title")
-            );
-
-            const snapshot = await getDocs(q);
-
-            snapshot.forEach(doc => {
-    console.log("Loaded recipe ID:", doc.id, "title:", doc.data().title);
-                
-    const li = document.createElement("li");
-    li.textContent = doc.data().title || "(Untitled Recipe)";
-    li.style.cursor = "pointer"; // show pointer on hover
-
-    // When clicked, close the index modal and open the recipe modal
-   
-li.onclick = async () => {
-    indexModal.classList.add("hidden");  // close index modal
+    indexList.innerHTML = "";
 
     try {
-        // Fetch the full recipe object from Firestore
-        const docRef = doc(db, "recipes", doc.id);
-        const docSnap = await getDoc(docRef);
+        const q = query(collection(db, "recipes"), orderBy("title"));
+        const snapshot = await getDocs(q);
 
-        if (!docSnap.exists()) {
-            console.error("Recipe not found for ID:", doc.id);
-            return;
-        }
+        snapshot.forEach(docSnap => {
+            const li = document.createElement("li");
+            li.textContent = docSnap.data().title || "(Untitled)";
+            li.style.cursor = "pointer";
 
-        const recipeData = docSnap.data();
-        recipeData.id = docSnap.id; // add ID so modal can use it
-        openRecipeModal(recipeData); // pass full object
-    } catch (error) {
-        console.error("Failed to open recipe modal:", error);
+            li.onclick = async () => {
+                // Fetch the recipe from Firestore
+                const recipeRef = doc(db, "recipes", docSnap.id);
+                const recipeSnap = await getDoc(recipeRef);
+                if (!recipeSnap.exists()) return;
+                const recipeData = recipeSnap.data();
+                recipeData.id = recipeSnap.id;
+
+                // Open the modal with the full object
+                openRecipeModal(recipeData);
+                indexModal.classList.add("hidden");
+            };
+
+            indexList.appendChild(li);
+        });
+    } catch (err) {
+        console.error("Failed to load recipe index:", err);
     }
-};
-    indexList.appendChild(li);
-});
-
+}
         } catch (error) {
             console.error("Error loading recipe index:", error);
             indexList.innerHTML = "<li>Failed to load recipes.</li>";
