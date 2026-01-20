@@ -580,7 +580,9 @@ body.modal-open {
   padding: 20px;
   border-radius: 16px;
   width: 300px;
-  max-height: 80vh;
+  max-height: 70vh;      /* <-- max height of modal */
+  overflow-y: auto;       /* <-- allow vertical scrolling */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 #closeIndexBtn {
