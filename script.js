@@ -1064,25 +1064,23 @@ if (!indexBtn) {
 
             const snapshot = await getDocs(q);
 
-            snapshot.forEach(doc => {
+            snapshot.forEach(recipeDoc => {
     console.log("Loaded recipe ID:", doc.id, "title:", doc.data().title);
                 
     const li = document.createElement("li");
     li.textContent = doc.data().title || "(Untitled Recipe)";
     li.style.cursor = "pointer"; // show pointer on hover
-
-    // When clicked, close the index modal and open the recipe modal
    
 li.onclick = async () => {
     indexModal.classList.add("hidden");  // close index modal
 
     try {
         // Fetch the full recipe object from Firestore
-        const docRef = doc(db, "recipes", doc.id);
+        const docRef = doc(db, "recipes", recipeDoc.id);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-            console.error("Recipe not found for ID:", doc.id);
+            console.error("Recipe not found for ID:", recipeDoc.id);
             return;
         }
 
