@@ -394,6 +394,8 @@ previewImageTag = document.getElementById("previewImageTag");
         const viewer = document.getElementById("recipeViewer"); 
         if (!recipe || !viewer) return;
 
+        console.log("Opening recipe modal with:", recipe);
+
         const modalImg = document.getElementById("modalImage");
         const modalTitle = document.getElementById("modalTitle");
         const modalCategory = document.getElementById("modalCategory");
