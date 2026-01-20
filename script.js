@@ -4,7 +4,7 @@ const customAlert = (message) => {
 }; 
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import {
+import { 
     getFirestore,
     collection,
     doc,
