@@ -1072,11 +1072,27 @@ if (!indexBtn) {
     li.style.cursor = "pointer"; // show pointer on hover
 
     // When clicked, close the index modal and open the recipe modal
-    li.onclick = () => {
-        indexModal.classList.add("hidden");  // close index modal
-        openRecipeModal(doc.id);             // your existing function
-    };
+   
+li.onclick = async () => {
+    indexModal.classList.add("hidden");  // close index modal
 
+    try {
+        // Fetch the full recipe object from Firestore
+        const docRef = doc(db, "recipes", doc.id);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            console.error("Recipe not found for ID:", doc.id);
+            return;
+        }
+
+        const recipeData = docSnap.data();
+        recipeData.id = docSnap.id; // add ID so modal can use it
+        openRecipeModal(recipeData); // pass full object
+    } catch (error) {
+        console.error("Failed to open recipe modal:", error);
+    }
+};
     indexList.appendChild(li);
 });
 
