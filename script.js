@@ -1063,34 +1063,34 @@ if (!indexBtn) {
             );
 
             const snapshot = await getDocs(q);
-
-            snapshot.forEach(recipeDoc => {
-    console.log("Loaded recipe ID:", doc.id, "title:", doc.data().title);
-                
+snapshot.forEach(recipeDoc => {
+    console.log("Loaded recipe ID:", recipeDoc.id, "title:", recipeDoc.data().title);
+    
     const li = document.createElement("li");
-    li.textContent = doc.data().title || "(Untitled Recipe)";
-    li.style.cursor = "pointer"; // show pointer on hover
-   
-li.onclick = async () => {
-    indexModal.classList.add("hidden");  // close index modal
+    li.textContent = recipeDoc.data().title || "(Untitled Recipe)";
+    li.style.cursor = "pointer";
 
-    try {
-        // Fetch the full recipe object from Firestore
-        const docRef = doc(db, "recipes", recipeDoc.id);
-        const docSnap = await getDoc(docRef);
+    li.onclick = async () => {
+        indexModal.classList.add("hidden");  // close index modal
 
-        if (!docSnap.exists()) {
-            console.error("Recipe not found for ID:", recipeDoc.id);
-            return;
+        try {
+            // Fetch the full recipe object from Firestore
+            const docRef = doc(db, "recipes", recipeDoc.id);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                console.error("Recipe not found for ID:", recipeDoc.id);
+                return;
+            }
+
+            const recipeData = docSnap.data();
+            recipeData.id = docSnap.id; // add ID so modal can use it
+            openRecipeModal(recipeData); // pass full object
+        } catch (error) {
+            console.error("Failed to open recipe modal:", error);
         }
-
-        const recipeData = docSnap.data();
-        recipeData.id = docSnap.id; // add ID so modal can use it
-        openRecipeModal(recipeData); // pass full object
-    } catch (error) {
-        console.error("Failed to open recipe modal:", error);
-    }
-};
+    };
+            
     indexList.appendChild(li);
 });
 
